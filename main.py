@@ -10,12 +10,9 @@ from trim import target_trim,source_trim
 #0.初期設定
 with open("config.yaml", "r") as f:
     config = yaml.safe_load(f)
-A_1=config["datasettings"]["source1_borrow_number"]
-A_2=config["datasettings"]["source2_borrow_number"]
-A=A_1+A_2
 split=config["hyperparam"]["n_split"]
 est_theta=np.empty(config["hyperparam"]["n_trial"])
-true_values=np.ones_like(est_theta)*9.36
+true_values=np.ones_like(est_theta)
 for j in range(0,config["hyperparam"]["n_trial"]):
     #1.データ作成
     data=DataSets()
