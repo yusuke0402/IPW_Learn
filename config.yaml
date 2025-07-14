@@ -9,14 +9,14 @@ senario:
 
 hyperparam:
   alpha: 1  
-  split_ratio: 1
-  n_trial: 1000
+  split_ratio: 0.7
+  n_trial: 1
   n_features: 3
   n_split: 5
 
 datasettings:
-  target_number: 240
-  source1_number: 1000 
+  target_number: 100
+  source1_number: 960
   source2_number: 120
   true_coffience:
     - [0,1,1,1] 
