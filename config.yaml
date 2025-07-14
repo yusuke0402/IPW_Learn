@@ -1,0 +1,24 @@
+path:
+  mean_csv_path: "domain_means.csv"
+  cov_csv_path: "domain_covariances.csv"
+  
+senario:
+  pattern_id: "previousresearch_2_3"
+  weight_id: "relative_importance"
+  model_id: "linear"
+
+hyperparam:
+  alpha: 1  
+  split_ratio: 0.7
+  n_trial: 1000
+  n_features: 10
+  n_split: 5
+
+datasettings:
+  target_number: 240
+  source1_number: 1000 
+  source2_number: 1200
+  source1_borrow_number: 36
+  source2_borrow_number: 24
+  true_coffience:
+    - [0,1,1,1,1,1,1,1,1,1,1] 

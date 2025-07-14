@@ -1,0 +1,19 @@
+pattern_id,domain,dim1,dim2,dim3,dim4,dim5,dim6,dim7,dim8,dim9,dim10
+baseline,A,0,0,0,0,0,0,0,0,0,0
+baseline,B,1,1,1,1,1,1,1,1,1,1
+baseline,C,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1
+scale,A,1,1,1,1,1,1,1,1,1,1
+scale,B,1,2,3,4,5,6,7,8,9,10
+scale,C,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1
+correlated,A,0,0,0,0,0,0,0,0,0,0
+correlated,B,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5
+correlated,C,1,2,3,4,5,6,7,8,9,10
+previousresearch_2_1,A,1,1,1,1,1,1,1,1,1,1
+previousresearch_2_1,B,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2
+previousresearch_2_1,C,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2
+previousresearch_2_2,A,1,1,1,1,1,1,1,1,1,1
+previousresearch_2_2,B,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2
+previousresearch_2_2,C,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5
+previousresearch_2_3,A,1,1,1,1,1,1,1,1,1,1
+previousresearch_2_3,B,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2
+previousresearch_2_3,C,2, 2, 2, 2, 2, 2, 2, 2, 2, 2
