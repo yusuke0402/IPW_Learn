@@ -19,4 +19,4 @@ datasettings:
   source1_number: 960
   source2_number: 120
   true_coffience:
-    - [0,1,1,1] 
+    - [0,1,1,1,1,1,1,1,1,1,1] 

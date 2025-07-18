@@ -7,8 +7,8 @@ with open("config.yaml", "r") as f:
     config = yaml.safe_load(f)
 def training(data,pred,lambda_):
 
-    source_x=data.training_historical_1_x
-    source_y=data.training_historical_1_y.reshape(-1,1)
+    source_x=np.concatenate([data.training_historical_1_x,data.training_historical_2_x],0)
+    source_y=np.concatenate([data.training_historical_1_y,data.training_historical_2_y],0).reshape(-1,1)
     target_x=data.training_current_x
     target_y=data.training_current_y.reshape(-1,1)
     weight=pred

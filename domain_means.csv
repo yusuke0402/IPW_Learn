@@ -1,13 +1,10 @@
-pattern_id,domain,dim1,dim2,dim3
-previousresearch_1_1,A,1,1.2,1.25
-previousresearch_1_1,B,0.5,1,1
-previousresearch_1_2,A,1,1.2,1.25
-previousresearch_1_2,B,0.5,1,1
-previousresearch_1_3,A,0.5,1,1
-previousresearch_1_3,B,0.5,1,1
-previousresearch_1_4,A,0.5,1,1
-previousresearch_1_4,B,0.5,1,1
-previousresearch_1_5,A,1,1.2,1.25
-previousresearch_1_5,B,0.5,1,1
-previousresearch_1_6,A,0.5,1,1
-previousresearch_1_6,B,0.5,1,1
+pattern_id,domain,dim1,dim2,dim3,dim4,dim5,dim6,dim7,dim8,dim9,dim10
+previousresearch_2_1,A,1,1,1,1,1,1,1,1,1,1
+previousresearch_2_1,B,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2
+previousresearch_2_1,C,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2
+previousresearch_2_2,A,1,1,1,1,1,1,1,1,1,1
+previousresearch_2_2,B,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2
+previousresearch_2_2,C,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5
+previousresearch_2_3,A,1,1,1,1,1,1,1,1,1,1
+previousresearch_2_3,B,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2
+previousresearch_2_3,C,2, 2, 2, 2, 2, 2, 2, 2, 2, 2

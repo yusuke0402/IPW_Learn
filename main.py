@@ -22,7 +22,8 @@ for i in range(0,config["hyperparam"]["n_trial"]):
 
     #2.傾向スコアの推定
     ppscore_target_1,ppscore_source1 = propensityscore(target_x=data.training_current_x[:,1:],target_y=data.training_current_y,source_x=data.training_historical_1_x[:,1:],source_y=data.training_historical_1_y)
-    weight=1/ppscore_source1
+    ppscore_target_2,ppscore_source2 = propensityscore(target_x=data.training_current_x[:,1:],target_y=data.training_current_y,source_x=data.training_historical_2_x[:,1:],source_y=data.training_historical_2_y)
+    weight = np.concatenate([1/ppscore_source1, 1/ppscore_source2])
     #3.ベイズ最適化
     best_lambda=bayesian_optimization(data,weight,i)[0]
     #4.MSEの最小化
