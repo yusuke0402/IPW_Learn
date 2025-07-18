@@ -3,20 +3,20 @@ path:
   cov_csv_path: "domain_covariances.csv"
   
 senario:
-  pattern_id: "previousresearch_1_1"
+  pattern_id: "previousresearch_1_6"
   weight_id: "relative_importance"
   model_id: "linear"
 
 hyperparam:
   alpha: 1  
   split_ratio: 0.7
-  n_trial: 1
+  n_trial: 100
   n_features: 3
   n_split: 5
 
 datasettings:
   target_number: 100
-  source1_number: 960
+  source1_number: 980
   source2_number: 120
   true_coffience:
     - [0,1,1,1,1,1,1,1,1,1,1] 
