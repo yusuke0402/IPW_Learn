@@ -40,7 +40,5 @@ print("thetaのMSE：",(np.mean(result-true_values))**2)
 print("thetaのbias：",np.mean(result-true_values))
 print("thetaのvaruance：",np.var(result))
 print("thetaのsd：",np.std(result))
-print("thetaの推定値：",result)
-
 
 
