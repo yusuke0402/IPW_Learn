@@ -48,7 +48,7 @@ class DataSets:
     self.__current_y=truefunction(x=self.__current_x,t=np.ones(self.__current_number),epsilon=self.__epsilon).reshape(-1,1) #現在試験のアウトカム　列ベクトル
 
     self.__historical_1_number=DataSets.config["datasettings"]["source1_number"]
-    self.__historical_1_x, self.__historical_1_x_mean=generate_multivariate_normal("C",size=self.__historical_1_number)
+    self.__historical_1_x, self.__historical_1_x_mean=generate_multivariate_normal("B",size=self.__historical_1_number)
     self.__epsilon=np.random.normal(loc=0,scale=1,size=self.__historical_1_number)
     self.__historical_1_x[:,1:5] = (self.__historical_1_x[:,1:5] >= 0).astype(int)
     self.__historical_1_y=truefunction(x=self.__historical_1_x,t=np.zeros(self.__historical_1_number),epsilon=self.__epsilon).reshape(-1,1)

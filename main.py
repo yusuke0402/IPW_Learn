@@ -3,8 +3,9 @@ import yaml
 import random
 from data import DataSets
 from propensityscore import propensityscore
-from bayesian_optimization import bayesian_optimization
-from train import training
+from wasserstain_distance import wasserstein_distance
+from weight import weight_calculation
+
 
 
 #0.初期設定
@@ -23,22 +24,30 @@ for i in range(0,config["hyperparam"]["n_trial"]):
     #2.傾向スコアの推定
     ppscore_target_1,ppscore_source1 = propensityscore(target_x=data.training_current_x[:,1:],target_y=data.training_current_y,source_x=data.training_historical_1_x[:,1:],source_y=data.training_historical_1_y)
     ppscore_target_2,ppscore_source2 = propensityscore(target_x=data.training_current_x[:,1:],target_y=data.training_current_y,source_x=data.training_historical_2_x[:,1:],source_y=data.training_historical_2_y)
-    weight = np.concatenate([1/ppscore_source1, 1/ppscore_source2])
-    #3.ベイズ最適化
-    best_lambda=bayesian_optimization(data,weight,i)[0]
-    #4.MSEの最小化
-    best_coffience=training(data=data,pred=weight,lambda_=best_lambda)
+    
+    #3.wasserstain_distanceの計算
+    wasserstein_dist_1 = wasserstein_distance(data.training_current_x[:,1:], data.training_historical_1_x[:,1:])
+    wasserstein_dist_2 = wasserstein_distance(data.training_current_x[:,1:], data.training_historical_2_x[:,1:])
+    #4.重みの計算
+    weight_1=wasserstein_dist_2*weight_calculation(ppscore_source1, wasserstein_dist_1, wasserstein_dist_2)
+    weight_2=wasserstein_dist_1*weight_calculation(ppscore_source2, wasserstein_dist_1, wasserstein_dist_2)
     #5.推定値の計算
-    result[i]=(np.mean(data.verifying_current_y)-np.mean(data.verifying_current_x@best_coffience))/config["hyperparam"]["alpha"]
+    result[i] = np.mean(data.training_current_y)-(weight_1@data.training_historical_1_y).item()-(weight_2@data.training_historical_2_y).item()
+    print((weight_1@data.training_historical_1_y).item()) 
+    print(np.mean(data.training_historical_1_y))
+    print(wasserstein_dist_2/(wasserstein_dist_1 + wasserstein_dist_2))
+    inv_ppscore = 1 / ppscore_source1
+    sum_inv_ppscore = np.sum(inv_ppscore)
+    print(np.sum(wasserstein_dist_2*inv_ppscore/sum_inv_ppscore/(wasserstein_dist_1 + wasserstein_dist_2)))
+    print((inv_ppscore/sum_inv_ppscore)@data.training_historical_1_y)
+    print(result[i])
+    print(np.mean(data.training_current_y))
+    print((weight_2@data.training_historical_2_y).item())
     
     
     
 
 
-print("thetaの平均値：",np.mean(result))
-print("thetaのMSE：",(np.mean(result-true_values))**2)
-print("thetaのbias：",np.mean(result-true_values))
-print("thetaのvaruance：",np.var(result))
-print("thetaのsd：",np.std(result))
+
 
 
