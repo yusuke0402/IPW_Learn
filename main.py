@@ -29,20 +29,24 @@ for i in range(0,config["hyperparam"]["n_trial"]):
     wasserstein_dist_1 = wasserstein_distance(data.training_current_x[:,1:], data.training_historical_1_x[:,1:])
     wasserstein_dist_2 = wasserstein_distance(data.training_current_x[:,1:], data.training_historical_2_x[:,1:])
     #4.重みの計算
-    weight_1=wasserstein_dist_2*weight_calculation(ppscore_source1, wasserstein_dist_1, wasserstein_dist_2)
-    weight_2=wasserstein_dist_1*weight_calculation(ppscore_source2, wasserstein_dist_1, wasserstein_dist_2)
+    weight_source_1=1/(1-ppscore_source1)
+    weight_source_2=1/(1-ppscore_source2)
+    weight_target_1=1/(ppscore_target_1)  
+    weight_target_2=1/(ppscore_target_2)
+    weight_mean_1=wasserstein_dist_2/(wasserstein_dist_1+wasserstein_dist_2)
+    weight_mean_2=wasserstein_dist_1/(wasserstein_dist_1+wasserstein_dist_2)
     #5.推定値の計算
-    result[i] = np.mean(data.training_current_y)-(weight_1@data.training_historical_1_y).item()-(weight_2@data.training_historical_2_y).item()
-    print((weight_1@data.training_historical_1_y).item()) 
-    print(np.mean(data.training_historical_1_y))
-    print(wasserstein_dist_2/(wasserstein_dist_1 + wasserstein_dist_2))
-    inv_ppscore = 1 / ppscore_source1
-    sum_inv_ppscore = np.sum(inv_ppscore)
-    print(np.sum(wasserstein_dist_2*inv_ppscore/sum_inv_ppscore/(wasserstein_dist_1 + wasserstein_dist_2)))
-    print((inv_ppscore/sum_inv_ppscore)@data.training_historical_1_y)
-    print(result[i])
-    print(np.mean(data.training_current_y))
-    print((weight_2@data.training_historical_2_y).item())
+    mean_1= np.sum(weight_target_1 * data.training_current_y.ravel())/np.sum(weight_target_1)-np.sum(weight_source_1 * data.training_historical_1_y.ravel()) / np.sum(weight_source_1)
+    mean_2= np.sum(weight_target_2 * data.training_current_y.ravel())/np.sum(weight_target_2)-np.sum(weight_source_2 * data.training_historical_2_y.ravel()) / np.sum(weight_source_2)
+    ate= mean_1 * weight_mean_1 + mean_2 * weight_mean_2
+    result[i]=ate
+
+print("mean：",np.mean(result))
+print("MSE：",np.mean((result-true_values)**2))
+print("bias：",np.mean(result-true_values))
+print("variance：",np.var(result))
+print("sd：",np.std(result))
+    
     
     
     
