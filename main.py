@@ -30,12 +30,18 @@ for i in range(0,config["hyperparam"]["n_trial"]):
     
     #4.推定値の計算
     result[i]=np.sum(weight_target*data.training_current_y.ravel()) /np.sum(weight_target)-np.mean(weight_source@integrated_historical_y.ravel())/np.sum(weight_source)
-print(data.training_historical_1_x)    
-print("mean：",np.mean(result))
-print("MSE：",np.mean((result-true_values)**2))
-print("bias：",np.mean(result-true_values))
-print("variance：",np.var(result))
-print("sd：",np.std(result))
+
+with open("result.txt", "a", encoding="utf-8") as f:
+    print("==================================", file=f)
+    print("trial:", config["senario"]["pattern_id"], file=f)
+    print("n_target:", config["datasettings"]["target_number"], file=f)
+    print("n_source1:", config["datasettings"]["source1_number"], file=f)   
+    print("n_source2:", config["datasettings"]["source2_number"], file=f)
+    print("mean：", np.mean(result), file=f)
+    print("MSE：", np.mean((result-true_values)**2), file=f)
+    print("bias：", np.mean(result-true_values), file=f)
+    print("variance：", np.var(result), file=f)
+    print("sd：", np.std(result), file=f)
 
 
 
