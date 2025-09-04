@@ -13,6 +13,8 @@ with open("config.yaml", "r") as f:
     config = yaml.safe_load(f)
 split=config["hyperparam"]["n_split"]
 result=np.empty(config["hyperparam"]["n_trial"])
+weight_mean_1_list=np.empty(config["hyperparam"]["n_trial"])
+weight_mean_2_list=np.empty(config["hyperparam"]["n_trial"])
 true_values=np.ones_like(result)
 for i in range(0,config["hyperparam"]["n_trial"]):
     #1.データ作成
@@ -40,16 +42,26 @@ for i in range(0,config["hyperparam"]["n_trial"]):
     mean_2= np.sum(weight_target_2 * data.training_current_y.ravel())/np.sum(weight_target_2)-np.sum(weight_source_2 * data.training_historical_2_y.ravel()) / np.sum(weight_source_2)
     ate= mean_1 * weight_mean_1 + mean_2 * weight_mean_2
     result[i]=ate
+    weight_mean_1_list[i]=weight_mean_1
+    weight_mean_2_list[i]=weight_mean_2
 
-print("mean：",np.mean(result))
-print("MSE：",np.mean((result-true_values)**2))
-print("bias：",np.mean(result-true_values))
-print("variance：",np.var(result))
-print("sd：",np.std(result))
-    
-    
-    
-    
+with open("result.txt", "a", encoding="utf-8") as f:
+    print("==================================", file=f)
+    print("trail：",config["senario"]["pattern_id"], file=f)
+    print("n_target：",config["datasettings"]["target_number"], file=f)
+    print("n_source1：",config["datasettings"]["source1_number"], file=f)
+    print("n_source2：",config["datasettings"]["source2_number"], file=f)
+    print("mean：", np.mean(result), file=f)
+    print("MSE：", np.mean((result-true_values)**2), file=f)
+    print("bias：", np.mean(result-true_values), file=f)
+    print("variance：", np.var(result), file=f)
+    print("sd：", np.std(result), file=f)
+    print("weight_mean_1:", weight_mean_1_list, file=f)
+    print("weight_mean_2:", weight_mean_2_list, file=f)
+
+
+
+
 
 
 
