@@ -42,6 +42,7 @@ with open("result.txt", "a", encoding="utf-8") as f:
     print("bias：", np.mean(result-true_values), file=f)
     print("variance：", np.var(result), file=f)
     print("sd：", np.std(result), file=f)
+    print("result:", result, file=f)
 
 
 
