@@ -1,19 +1,10 @@
-pattern_id,domain,dim1,dim2
-previousresearch_2_1,A,1,1
-previousresearch_2_1,B,1.2,1.2
-previousresearch_2_1,C,1.2,1.2
-previousresearch_2_2,A,1,1
-previousresearch_2_2,B,1.2,1.2
-previousresearch_2_2,C,1.5,1.5
-previousresearch_2_3,A,1,1
-previousresearch_2_3,B,1.2,1.2
-previousresearch_2_3,C,2, 2
-senario_1,A,0,0
-senario_1,B,0,1 
-senario_1,C,0,0
-senario_2,A,0,0
-senario_2,B,2,3
-senario_2,C,0,1
-senario_3,A,0,1
-senario_3,B,0,0
-senario_3,C,-5,5
+pattern_id,domain,dim1,dim2,dim3,dim4,dim5,dim6,dim7,dim8,dim9,dim10
+previousresearch_2_1,A,1,1,1,1,1,1,1,1,1,1
+previousresearch_2_1,B,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2
+previousresearch_2_1,C,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2
+previousresearch_2_2,A,1,1,1,1,1,1,1,1,1,1
+previousresearch_2_2,B,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2
+previousresearch_2_2,C,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5
+previousresearch_2_3,A,1,1,1,1,1,1,1,1,1,1
+previousresearch_2_3,B,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2
+previousresearch_2_3,C,2, 2, 2, 2, 2, 2, 2, 2, 2, 2
