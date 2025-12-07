@@ -10,7 +10,7 @@ senario:
 hyperparam:
   alpha: 1  
   split_ratio: 1
-  n_trial: 1
+  n_trial: 100
   n_features: 10
   n_split: 5
 
@@ -18,5 +18,6 @@ datasettings:
   target_number: 210
   source1_number: 36
   source2_number: 24
+  true_value: 1
   true_coffience:
     - [0,1,1,1,1,1,1,1,1,1,1] 
