@@ -9,7 +9,7 @@ from weight import weight_calculation
 
 
 #0.初期設定
-with open("config.yaml", "r") as f:
+with open("configs/config.yaml", "r") as f:
     config = yaml.safe_load(f)
 split=config["hyperparam"]["n_split"]
 result=np.empty(config["hyperparam"]["n_trial"])

@@ -4,7 +4,7 @@ import yaml
 
 class DataSets:
 
-  with open("config.yaml", "r") as f:
+  with open("configs/config.yaml", "r") as f:
     config = yaml.safe_load(f)
 
   target_split = int(config["hyperparam"]["split_ratio"] * config["datasettings"]["target_number"])

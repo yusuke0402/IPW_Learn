@@ -1,6 +1,6 @@
 path:
-  mean_csv_path: "domain_means.csv"
-  cov_csv_path: "domain_covariances.csv"
+  mean_csv_path: "configs/domain_means.csv"
+  cov_csv_path: "configs/domain_covariances.csv"
   
 senario:
   pattern_id: "previousresearch_2_1"
