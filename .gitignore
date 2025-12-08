@@ -1,7 +1,7 @@
 # Pythonキャッシュ関連
 __pycache__/
 *.py[cod]
-
+.ruff_cache/
 # Jupyter関連
 .ipynb_checkpoints/
 
