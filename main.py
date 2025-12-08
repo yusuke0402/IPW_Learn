@@ -13,10 +13,11 @@ from wasserstain_distance import wasserstein_distance
 #0.初期設定
 with open("configs/config.yaml", "r") as f:
     config = yaml.safe_load(f)
-split=config["hyperparam"]["n_split"]
+split=config["experiment"]["hyperparameters"]["n_split"]
 results=[]
+source_list = config["experiment"]["dataset"]["source"]
 
-for i in range(0,config["hyperparam"]["n_trial"]):
+for i in range(0,config["experiment"]["hyperparameters"]["n_trial"]):
     #1.データ作成
     np.random.seed(i)
     random.seed(i)
@@ -66,16 +67,16 @@ stats = {
     "mean": float(estimates.mean()),
     "variance": float(estimates.var()),
     "std_dev": float(estimates.std()),
-    "mse": float(np.mean((estimates - config["hyperparam"]["true_value"]) ** 2)),
+    "mse": float(np.mean((estimates - config["experiment"]["hyperparameters"]["true_params"]["value"]) ** 2)),
 }
 
 summary_data = {
     "timestamp": now,
-    "senario_name": config["senario"]["pattern_id"],
-    "current_number": config["datasettings"]["target_number"],
-    "historical_1_number": config["datasettings"]["source1_number"],
-    "historical_2_number": config["datasettings"]["source2_number"],
-    "n_trial": config["hyperparam"]["n_trial"],
+    "senario_name": config["experiment"]["scenario"]["pattern_name"],
+    "current_number": config["experiment"]["dataset"]["target_number"],
+    "historical_1_number": next(s["number"] for s in source_list if s["name"] == "source1"),
+    "historical_2_number": next(s["number"] for s in source_list if s["name"] == "source2"),
+    "n_trial": config["experiment"]["hyperparameters"]["n_trial"],
     "statistics": stats,
     "notes": "YOU CAN WRITE SOME NOTES HERE",
 }

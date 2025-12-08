@@ -1,0 +1,12 @@
+timestamp: '20251208130939'
+senario_name: 10dim_covariances
+current_number: 210
+historical_1_number: 36
+historical_2_number: 24
+n_trial: 100
+statistics:
+  mean: 3.163008247070513
+  variance: 19.4675629213424
+  std_dev: 4.412206128609859
+  mse: 23.951491969024026
+notes: YOU CAN WRITE SOME NOTES HERE

@@ -7,14 +7,15 @@ class DataSets:
   with open("configs/config.yaml", "r") as f:
     config = yaml.safe_load(f)
 
-  target_split = int(config["hyperparam"]["split_ratio"] * config["datasettings"]["target_number"])
+  target_split = int(config["experiment"]["hyperparameters"]["split_ratio"] * config["experiment"]["dataset"]["target_number"])
 
  #初期化
   def __init__(self):    
-    pattern_id=DataSets.config["senario"]["pattern_id"]
-    n_features= DataSets.config["hyperparam"]["n_features"]
+    pattern_id=DataSets.config["experiment"]["scenario"]["pattern_name"]
+    n_features= DataSets.config["experiment"]["hyperparameters"]["n_features"]
     mean_df=pd.read_csv(f"configs/{n_features}dim_means.csv")
     cov_df=pd.read_csv(f"configs/{n_features}dim_covariances.csv")
+    source_list = DataSets.config["experiment"]["dataset"]["source"]
     
 
     def generate_multivariate_normal(domain, size=1):
@@ -24,7 +25,7 @@ class DataSets:
       return np.insert(x,0,1,axis=1),mean_vector
 
     def truefunction(x,t,epsilon):
-      coefficient=np.array(DataSets.config["hyperparam"]["true_coffience"])
+      coefficient = np.array(DataSets.config["experiment"]["hyperparameters"]["true_params"]["coffience"])
       return np.array([coefficient@x.T+t+epsilon]).T
 
 
@@ -41,17 +42,17 @@ class DataSets:
       covariances[row['domain']]=cov
 
 
-    self.__current_number=DataSets.config["datasettings"]["target_number"] #現在試験の被験者数
+    self.__current_number=DataSets.config["experiment"]["dataset"]["target_number"] #現在試験の被験者数
     self.__current_x, self.__current_x_mean=generate_multivariate_normal("target",size=self.__current_number) #現在試験の共変量　行が被験者、列が共変量
     self.__epsilon=np.random.normal(loc=0,scale=1,size=self.__current_number) #測定誤差
     self.__current_y=truefunction(x=self.__current_x,t=np.ones(self.__current_number),epsilon=self.__epsilon).reshape(-1,1) #現在試験のアウトカム　列ベクトル
 
-    self.__historical_1_number=DataSets.config["datasettings"]["source1_number"]
+    self.__historical_1_number = next(s["number"] for s in source_list if s["name"] == "source1")
     self.__historical_1_x, self.__historical_1_x_mean=generate_multivariate_normal("source_1",size=self.__historical_1_number)
     self.__epsilon=np.random.normal(loc=0,scale=1,size=self.__historical_1_number)
     self.__historical_1_y=truefunction(x=self.__historical_1_x,t=np.zeros(self.__historical_1_number),epsilon=self.__epsilon).reshape(-1,1)
 
-    self.__historical_2_number=DataSets.config["datasettings"]["source2_number"]
+    self.__historical_2_number = next(s["number"] for s in source_list if s["name"] == "source2")
     self.__historical_2_x, self.__historical_2_x_mean=generate_multivariate_normal("source_2",size=self.__historical_2_number)
     self.__epsilon=np.random.normal(loc=0,scale=1,size=self.__historical_2_number)
     self.__historical_2_y=truefunction(x=self.__historical_2_x,t=np.zeros(self.__historical_2_number),epsilon=self.__epsilon).reshape(-1,1)
