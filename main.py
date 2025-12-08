@@ -7,7 +7,6 @@ import datetime
 from data import DataSets
 from propensityscore import propensityscore
 from wasserstain_distance import wasserstein_distance
-from weight import weight_calculation
 
 
 
@@ -67,7 +66,7 @@ stats = {
     "mean": float(estimates.mean()),
     "variance": float(estimates.var()),
     "std_dev": float(estimates.std()),
-    "mse": float(np.mean((estimates - config["datasettings"]["true_value"]) ** 2)),
+    "mse": float(np.mean((estimates - config["hyperparam"]["true_value"]) ** 2)),
 }
 
 summary_data = {

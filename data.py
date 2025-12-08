@@ -13,8 +13,8 @@ class DataSets:
   def __init__(self):    
     pattern_id=DataSets.config["senario"]["pattern_id"]
     n_features= DataSets.config["hyperparam"]["n_features"]
-    mean_df=pd.read_csv(DataSets.config["path"]["mean_csv_path"])
-    cov_df=pd.read_csv(DataSets.config["path"]["cov_csv_path"])
+    mean_df=pd.read_csv(f"configs/{n_features}dim_means.csv")
+    cov_df=pd.read_csv(f"configs/{n_features}dim_covariances.csv")
     
 
     def generate_multivariate_normal(domain, size=1):
@@ -24,7 +24,7 @@ class DataSets:
       return np.insert(x,0,1,axis=1),mean_vector
 
     def truefunction(x,t,epsilon):
-      coefficient=np.array(DataSets.config["datasettings"]["true_coffience"])
+      coefficient=np.array(DataSets.config["hyperparam"]["true_coffience"])
       return np.array([coefficient@x.T+t+epsilon]).T
 
 
@@ -42,21 +42,18 @@ class DataSets:
 
 
     self.__current_number=DataSets.config["datasettings"]["target_number"] #現在試験の被験者数
-    self.__current_x, self.__current_x_mean=generate_multivariate_normal("A",size=self.__current_number) #現在試験の共変量　行が被験者、列が共変量
-    self.__current_x[:,1:5] = (self.__current_x[:,1:5] >= 0).astype(int)
+    self.__current_x, self.__current_x_mean=generate_multivariate_normal("target",size=self.__current_number) #現在試験の共変量　行が被験者、列が共変量
     self.__epsilon=np.random.normal(loc=0,scale=1,size=self.__current_number) #測定誤差
     self.__current_y=truefunction(x=self.__current_x,t=np.ones(self.__current_number),epsilon=self.__epsilon).reshape(-1,1) #現在試験のアウトカム　列ベクトル
 
     self.__historical_1_number=DataSets.config["datasettings"]["source1_number"]
-    self.__historical_1_x, self.__historical_1_x_mean=generate_multivariate_normal("B",size=self.__historical_1_number)
+    self.__historical_1_x, self.__historical_1_x_mean=generate_multivariate_normal("source_1",size=self.__historical_1_number)
     self.__epsilon=np.random.normal(loc=0,scale=1,size=self.__historical_1_number)
-    self.__historical_1_x[:,1:5] = (self.__historical_1_x[:,1:5] >= 0).astype(int)
     self.__historical_1_y=truefunction(x=self.__historical_1_x,t=np.zeros(self.__historical_1_number),epsilon=self.__epsilon).reshape(-1,1)
 
     self.__historical_2_number=DataSets.config["datasettings"]["source2_number"]
-    self.__historical_2_x, self.__historical_2_x_mean=generate_multivariate_normal("C",size=self.__historical_2_number)
+    self.__historical_2_x, self.__historical_2_x_mean=generate_multivariate_normal("source_2",size=self.__historical_2_number)
     self.__epsilon=np.random.normal(loc=0,scale=1,size=self.__historical_2_number)
-    self.__historical_2_x[:,1:5] = (self.__historical_2_x[:,1:5] >= 0).astype(int)
     self.__historical_2_y=truefunction(x=self.__historical_2_x,t=np.zeros(self.__historical_2_number),epsilon=self.__epsilon).reshape(-1,1)
 
   

@@ -1,6 +1,5 @@
 from sklearn.linear_model import LogisticRegression
 import numpy as np
-from data import DataSets
 
 def propensityscore(target_x,target_y,source_x,source_y):
 

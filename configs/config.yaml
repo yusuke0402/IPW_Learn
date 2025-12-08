@@ -1,23 +1,26 @@
-path:
-  mean_csv_path: "configs/domain_means.csv"
-  cov_csv_path: "configs/domain_covariances.csv"
-  
+hyperparam:
+datasettings:
+
+# シナリオ設定
 senario:
-  pattern_id: "previousresearch_2_1"
-  weight_id: "relative_importance"
+  pattern_id: "10dim_senario_1"
   model_id: "linear"
 
+# ハイパーパラメータ
 hyperparam:
-  alpha: 1  
+  alpha: 1
   split_ratio: 1
   n_trial: 100
   n_features: 10
   n_split: 5
+  true_value: 1
+  true_coffience:
+    - [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 
+# データセット設定
 datasettings:
   target_number: 210
   source1_number: 36
   source2_number: 24
-  true_value: 1
-  true_coffience:
-    - [0,1,1,1,1,1,1,1,1,1,1] 
+  
+  
