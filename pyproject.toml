@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 [project]
 name = "ipw-learn"
 version = "0.1.0"
@@ -11,3 +12,23 @@ dependencies = [
     "pyaml>=25.7.0",
     "scikit-learn>=1.6.1",
 ]
+=======
+[project]
+name = "ipw-learn"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "numpy>=2.0.2",
+    "pandas>=2.3.3",
+    "pot>=0.9.6.post1",
+    "pyaml>=25.7.0",
+    "scikit-learn>=1.6.1",
+]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.14.8",
+]
+>>>>>>> factory_method
