@@ -1,31 +1,3 @@
-<<<<<<< HEAD
-# Pythonキャッシュ関連
-__pycache__/
-*.py[cod]
-
-# Jupyter関連
-.ipynb_checkpoints/
-
-# 環境ファイル
-.env
-*.env
-
-# VSCode用
-.vscode/
-
-# macOS
-.DS_Store
-
-# Windows
-Thumbs.db
-
-# ログ・出力ファイル
-*.log
-*.out
-
-# 仮想環境（例: venv）
-.venv/
-=======
 # Pythonキャッシュ関連
 __pycache__/
 *.py[cod]
@@ -52,4 +24,3 @@ Thumbs.db
 
 # 仮想環境（例: venv）
 .venv/
->>>>>>> factory_method
