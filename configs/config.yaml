@@ -1,19 +1,13 @@
-hyperparam:
-datasettings:
-
-
 # =============================
 # 実験設定ファイル
 # =============================
 
-experiment:
-  # シナリオ
-  scenario:
-    pattern_name: "10dim_senario_1"
-    model_name: "linear"
+scenario:
+  data_scenario_id: "data_scenario_1"
+  model_id: "linear"
+  model_scenario_id: "model_scenario_1"
 
-  # データセット
-  dataset:
+dataset:
     target_number: 210
     source:
       - name: source1
@@ -21,15 +15,12 @@ experiment:
       - name: source2
         number: 24
 
-  # ハイパーパラメータ
-  hyperparameters:
+hyperparameters:
     alpha: 1
     split_ratio: 1
     n_trial: 100
     n_split: 5
     n_features: 10
-    true_params:
-      value: 1
-      coffience: [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+    true_value: 1.0
   
   

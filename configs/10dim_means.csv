@@ -1,10 +1,10 @@
-pattern_id,domain,dim1,dim2,dim3,dim4,dim5,dim6,dim7,dim8,dim9,dim10
-10dim_senario_1,target,1,1,1,1,1,1,1,1,1,1
-10dim_senario_1,source_1,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2
-10dim_senario_1,source_2,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2
-10dim_senario_2,target,1,1,1,1,1,1,1,1,1,1
-10dim_senario_2,source_1,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2
-10dim_senario_2,source_2,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5
-10dim_senario_3,target,1,1,1,1,1,1,1,1,1,1
-10dim_senario_3,source_1,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2
-10dim_senario_3,source_2,2, 2, 2, 2, 2, 2, 2, 2, 2, 2
+data_scenario_id,domain,dim1,dim2,dim3,dim4,dim5,dim6,dim7,dim8,dim9,dim10
+data_scenario_1,target,1,1,1,1,1,1,1,1,1,1
+data_scenario_1,source_1,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2
+data_scenario_1,source_2,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2
+data_scenario_2,target,1,1,1,1,1,1,1,1,1,1
+data_scenario_2,source_1,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2
+data_scenario_2,source_2,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5
+data_scenario_3,target,1,1,1,1,1,1,1,1,1,1
+data_scenario_3,source_1,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2
+data_scenario_3,source_2,2, 2, 2, 2, 2, 2, 2, 2, 2, 2
