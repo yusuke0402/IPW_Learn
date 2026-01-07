@@ -1,0 +1,7 @@
+data_scenario_id,domain,cov
+data_scenario_1,target,"1.5,-0.7,-0.7,1.5"
+data_scenario_1,source,"1.7,0.7,0.7,1.7"
+data_scenario_2,target,"1.5,-0.7,-0.7,1.5"
+data_scenario_2,source,"1.7,0.7,0.7,1.7"
+data_scenario_3,target,"1.5, -0.7, -0.7, 1.5"
+data_scenario_3,source,"3.5, 0.7, 0.7, 3.5"

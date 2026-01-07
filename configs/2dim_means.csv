@@ -1,0 +1,7 @@
+data_scenario_id,domain,dim1,dim2
+data_scenario_1,target,0,1
+data_scenario_1,source,0,0 
+data_scenario_2,target,2,3
+data_scenario_2,source,0,0
+data_scenario_3,target,0,1
+data_scenario_3,source,0,0

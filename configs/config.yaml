@@ -8,15 +8,15 @@ scenario:
   model_scenario_id: "model_scenario_1"
 
 dataset:
-    target_number: 210
-    source_number: 24
+    target_number: 100
+    source_number: 100
 
 hyperparameters:
     alpha: 1
     split_ratio: 1
     n_trial: 100
     n_split: 5
-    n_features: 10
+    n_features: 2
     true_value: 1.0
   
   

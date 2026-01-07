@@ -15,7 +15,6 @@ class DataSets:
     n_features= DataSets.config["hyperparameters"]["n_features"]
     mean_df=pd.read_csv(f"configs/{n_features}dim_means.csv")
     cov_df=pd.read_csv(f"configs/{n_features}dim_covariances.csv")
-    source_list = DataSets.config["dataset"]["source"]
     
 
     def generate_multivariate_normal(domain, size=1):
@@ -23,11 +22,6 @@ class DataSets:
       cov_matrix = covariances[domain] #分散共分散行列
       x=np.random.multivariate_normal(mean_vector, cov_matrix, size)
       return np.insert(x,0,1,axis=1),mean_vector
-
-    def truefunction(x,t,epsilon):
-      coefficient = np.array(DataSets.config["experiment"]["hyperparameters"]["true_params"]["coffience"])
-      return np.array([coefficient@x.T+t+epsilon]).T
-
 
     means={
     row['domain']: np.array([row[f'dim{i+1}'] for i in range(n_features)])
@@ -49,50 +43,35 @@ class DataSets:
             input=self.__target_x, t=np.ones(self.__target_number), epsilon=self.__epsilon
     )
 
-    self.__source_1_number = next(s["number"] for s in source_list if s["name"] == "source1")
-    self.__source_1_x, self.__source_1_x_mean=generate_multivariate_normal("source_1",size=self.__source_1_number)
-    self.__epsilon=np.random.normal(loc=0,scale=1,size=self.__source_1_number)
-    self.__source_1_y=ModelFactory.get_output(
-            input=self.__source_1_x, t=np.zeros(self.__source_1_number), epsilon=self.__epsilon
-        )
-    self.__source_2_number = next(s["number"] for s in source_list if s["name"] == "source2")
-    self.__source_2_x, self.__source_2_x_mean=generate_multivariate_normal("source_2",size=self.__source_2_number)
-    self.__epsilon=np.random.normal(loc=0,scale=1,size=self.__source_2_number)
-    self.__source_2_y=ModelFactory.get_output(
-            input=self.__source_2_x, t=np.zeros(self.__source_2_number), epsilon=self.__epsilon
+    self.__source_number = DataSets.config["dataset"]["source_number"]
+    self.__source_x, self.__source_x_mean=generate_multivariate_normal("source",size=self.__source_number)
+    self.__epsilon=np.random.normal(loc=0,scale=1,size=self.__source_number)
+    self.__source_y=ModelFactory.get_output(
+            input=self.__source_x, t=np.zeros(self.__source_number), epsilon=self.__epsilon
         )
   
 #変数のカプセル化、意図しない値の書き換えを防ぐ目的
   @property
-  def training_current_x(self):
+  def training_target_x(self):
      return self.__target_x[0:self.target_split,:]
   @property
-  def verifying_current_x(self):
+  def verifying_target_x(self):
      return self.__target_x[self.target_split:,:]
   @property
-  def training_current_y(self):
+  def training_target_y(self):
      return self.__target_y[0:self.target_split,:]
   @property
-  def verifying_current_y(self):
+  def verifying_target_y(self):
      return self.__target_y[self.target_split:,:]
   @property
-  def training_historical_1_x(self):
-    return self.__source_1_x
+  def training_source_x(self):
+    return self.__source_x
   @property
-  def training_historical_1_y(self):
-    return self.__source_1_y
-  @property
-  def training_historical_2_x(self):
-    return self.__source_2_x
-  @property
-  def training_historical_2_y(self):
-    return self.__source_2_y
+  def training_source_y(self):
+    return self.__source_y
   @property
   def current_x_mean(self):
     return self.__target_x_mean
   @property
-  def historical_1_x_mean(self):
-    return self.__source_1_x_mean
-  @property
-  def historical_2_x_mean(self):
-    return self.__source_2_x_mean
+  def source_x_mean(self):
+    return self.__source_x_mean
