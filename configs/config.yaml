@@ -9,11 +9,7 @@ scenario:
 
 dataset:
     target_number: 210
-    source:
-      - name: source1
-        number: 36
-      - name: source2
-        number: 24
+    source_number: 24
 
 hyperparameters:
     alpha: 1
