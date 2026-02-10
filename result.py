@@ -18,6 +18,7 @@ class Result:
         estimates = df["estimate_value"]
 
         stats = {
+            "method":"Inverse Propensityscore Weighted Learning",
             "mean": float(estimates.mean()),
             "variance": float(estimates.var()),
             "std_dev": float(estimates.std()),
