@@ -3,7 +3,7 @@
 # =============================
 
 scenario:
-  data_scenario_id: "data_scenario_4"
+  data_scenario_id: "data_scenario_1"
   model_id: "linear"
   model_scenario_id: "model_scenario_1"
 
@@ -16,7 +16,7 @@ hyperparameters:
     split_ratio: 1
     n_trial: 1000
     n_split: 5
-    n_features: 10
+    n_features: 2
     true_value: 1.0
   
   

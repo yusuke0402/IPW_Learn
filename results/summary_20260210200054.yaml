@@ -1,15 +1,14 @@
-method: "IPW-Learn"
-timestamp: '20260209181106'
+timestamp: '20260210200054'
 senario_name: data_scenario_1
 model_id: linear
 model_scenario_id: model_scenario_1
-n_features: 10
+n_features: 2
 target_number: 200
 source_number: 200
 n_trial: 1000
 statistics:
-  mean: 0.3460076183741445
-  variance: 0.5533257847795797
-  std_dev: 0.743858712915013
-  mse: 0.9804784942194587
+  mean: 1.0326456292351682
+  variance: 0.021629617077442386
+  std_dev: 0.1470701093949494
+  mse: 0.022673724568524997
 notes: YOU CAN WRITE SOME NOTES HERE
