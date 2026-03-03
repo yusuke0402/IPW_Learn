@@ -9,11 +9,11 @@ class Result:
     @staticmethod
     def save_results(results, config):
         now = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-        if not os.path.exists("results_20"):
-            os.makedirs("results_20")
+        if not os.path.exists("RIWvsIPW-results"):
+            os.makedirs("RIWvsIPW-results")
         df = pd.DataFrame(results)
-        df.to_csv(f"results_20/result_{now}.csv", index=False)
-        print(f"詳細ログを保存しました: results_20/result_{now}.csv")
+        df.to_csv(f"RIWvsIPW-results/result_{now}.csv", index=False)
+        print(f"詳細ログを保存しました: RIWvsIPW-results_20/result_{now}.csv")
         # 統計量の計算
         estimates = df["estimate_value"]
 
@@ -38,7 +38,7 @@ class Result:
             "statistics": stats,
             "notes": "YOU CAN WRITE SOME NOTES HERE",
         }
-        with open(f"results_20/summary_{now}.yaml", "w", encoding="utf-8") as f:
+        with open(f"RIWvsIPW-results/summary_{now}.yaml", "w", encoding="utf-8") as f:
             yaml.safe_dump(
                 summary_data,
                 f,
@@ -46,4 +46,4 @@ class Result:
                 sort_keys=False,
                 allow_unicode=True,
             )
-        print(f"統計量を保存しました: results_20/summary_{now}.yaml")
+        print(f"統計量を保存しました: RIWvsIPW-results/summary_{now}.yaml")
