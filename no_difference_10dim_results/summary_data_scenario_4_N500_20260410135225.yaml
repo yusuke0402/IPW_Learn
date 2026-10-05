@@ -1,0 +1,15 @@
+method: Inverse Propensityscore Weighted Learning
+timestamp: '20260410135225'
+senario_name: data_scenario_4
+model_id: linear
+model_scenario_id: model_scenario_1
+n_features: 10
+target_number: 20
+source_number: 500
+n_trial: 300
+statistics:
+  mean: -0.16760642063903905
+  variance: 0.3511012793924996
+  std_dev: 0.5925379982688871
+  mse: 0.37802285403395514
+notes: Automated experiment run
