@@ -7,9 +7,8 @@ from propensityscore import propensityscore
 from result import Result
 
 def run_experiment(config):
-    split = config["hyperparameters"]["n_split"]
-    results = []
     n_trial = config["hyperparameters"]["n_trial"]
+    results = []
 
     for i in range(0, n_trial):
         np.random.seed(i)

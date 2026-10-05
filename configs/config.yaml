@@ -7,16 +7,14 @@ scenario:
   model_id: "linear"
   model_scenario_id: "model_scenario_1"
 
+hyperparameters:
+    alpha: 1
+    n_trial: 300
+    n_features: 10
+
 dataset:
     target_number: 20
     source_number: 20
-
-hyperparameters:
-    alpha: 1
-    split_ratio: 1
-    n_trial: 300
-    n_split: 5
-    n_features: 10
-    true_value: 1.0
+    true_value: 0.0
 
 output_dir: "no_difference_10dim_results"
