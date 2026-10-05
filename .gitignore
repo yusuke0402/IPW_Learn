@@ -24,3 +24,6 @@ Thumbs.db
 
 # 仮想環境（例: venv）
 .venv/
+
+# smoke runs
+results/v2/smoke/

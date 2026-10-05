@@ -15,14 +15,16 @@ IW-Learn の scripts/nonlinear_gamma_experiment.py と同一のシード・乱�
 データを生成するため、trial 番号で突き合わせれば IWL と同一データのペア比較になる。
 計算はこのリポジトリ内で完結する(IW-Learn への依存なし)。
 
-出力(IW-Learn の summary.csv と同じ列 + 重み診断):
-    results/<out-dir>/trials_<scenario>_N<n_h>_gamma<g>.csv
-    results/<out-dir>/summary.csv
+出力(IW-Learn の summary.csv と同じ列 + 重み診断)。出力先は
+results/v2/<purpose>/ipw_<重み>_t<N>_B<B>/(results/README.md 参照):
+    trials_<scenario>_N<n_h>_gamma<g>.csv
+    summary.csv
+既存 trials CSV にある trial は飛ばし、足りない trial だけ計算して追記する(試行単位のレジューム)。
 
 Usage:
-    .venv/bin/python scripts/nonlinear_gamma_ipw.py --weight-method propensity     # 既定
-    .venv/bin/python scripts/nonlinear_gamma_ipw.py --weight-method ulsif --out-dir nonlinear_gamma_target50_ulsif
-    .venv/bin/python scripts/nonlinear_gamma_ipw.py --scenarios data_scenario_2 --trials 200 --bootstraps 200
+    .venv/bin/python scripts/nonlinear_gamma_ipw.py --weight-method propensity --purpose paper   # 既定重み
+    .venv/bin/python scripts/nonlinear_gamma_ipw.py --weight-method ulsif --purpose paper
+    .venv/bin/python scripts/nonlinear_gamma_ipw.py --scenarios data_scenario_2 --trials 200 --bootstraps 200  # dev
     .venv/bin/python scripts/nonlinear_gamma_ipw.py --smoke
 """
 
@@ -120,6 +122,88 @@ def _estimate(tx, ty, sx, sy, method, means, covs, wkw):
     return weighted_mean_difference(wt, ty, ws, sy), ws
 
 
+
+
+# ---------------------------------------------------------------------------
+# 出力規約(4 リポジトリ共通):
+#   results/v2/<purpose>/<run_name>/   purpose ∈ {paper, dev, smoke}
+#   run_name 既定 = <手法>_<重み>_t<target_n>_B<bootstraps>(試行数は含めない)
+# 試行単位のレジューム: 既存 trials CSV にある trial は飛ばし、足りない trial だけ計算して追記する。
+# シードは trial 番号で固定なので、分割して計算しても一括計算と同じ結果になる。
+# ---------------------------------------------------------------------------
+def _git_commit(root):
+    try:
+        import subprocess
+        return subprocess.check_output(
+            ["git", "-C", str(root), "rev-parse", "--short", "HEAD"], text=True,
+            stderr=subprocess.DEVNULL,
+        ).strip()
+    except Exception:
+        return None
+
+
+def resolve_out_dir(root, args, run_name_default):
+    """--out-dir(results/ 相対の明示指定)があればそれ、なければ results/v2/<purpose>/<run_name>/。"""
+    if args.out_dir:
+        return root / "results" / args.out_dir
+    purpose = "smoke" if args.smoke else args.purpose
+    return root / "results" / "v2" / purpose / (args.run_name or run_name_default)
+
+
+def write_run_meta(out_dir, root, **meta):
+    import datetime
+    import json
+    import platform
+    meta.update(
+        git_commit=_git_commit(root),
+        timestamp=datetime.datetime.now().isoformat(timespec="seconds"),
+        host=platform.node(),
+    )
+    (out_dir / "run_meta.json").write_text(
+        json.dumps(meta, indent=2, ensure_ascii=False, default=str), encoding="utf-8"
+    )
+
+
+def load_or_run_trials(csv_path, n_trials, required_col, run_fn, n_jobs, verbose):
+    """試行単位のレジューム。戻り値は (trial < n_trials の DataFrame, 新規計算した試行数)。
+
+    既存 CSV の行は(n_trials より大きい trial も含めて)捨てずに保持し、
+    足りない trial だけ run_fn(i) で計算して追記する。列構成が違う古い CSV は作り直す。
+    """
+    from joblib import Parallel, delayed
+    cached = None
+    if csv_path.exists():
+        c = pd.read_csv(csv_path)
+        if required_col in c.columns and "trial" in c.columns:
+            cached = c
+    done = set(cached["trial"].astype(int)) if cached is not None else set()
+    todo = [i for i in range(n_trials) if i not in done]
+    if todo:
+        rows = Parallel(n_jobs=n_jobs, backend="loky", verbose=verbose)(
+            delayed(run_fn)(i) for i in todo
+        )
+        new = pd.DataFrame(rows)
+        df_all = (pd.concat([cached, new], ignore_index=True)
+                  if cached is not None and len(cached) else new)
+        df_all = df_all.sort_values("trial").reset_index(drop=True)
+        df_all.to_csv(csv_path, index=False)
+    else:
+        df_all = cached
+    df = df_all[df_all["trial"] < n_trials].sort_values("trial").reset_index(drop=True)
+    return df, len(todo)
+
+
+def add_layout_args(parser):
+    parser.add_argument("--purpose", choices=["paper", "dev", "smoke"], default="dev",
+                        help="出力先 results/v2/<purpose>/。paper=論文・資料用の本番、"
+                             "dev=動作確認・縮小規模、smoke=--smoke 用(git 管理外)")
+    parser.add_argument("--run-name", type=str, default=None,
+                        help="results/v2/<purpose>/ 配下のディレクトリ名。"
+                             "既定は <手法>_<重み>_t<target_n>_B<bootstraps>")
+    parser.add_argument("--out-dir", type=str, default=None,
+                        help="results/ 相対の出力先を直接指定(規約を使わない場合のみ)")
+
+
 def run_one_trial(i, scenario, source_n, gamma, n_bootstraps, target_n, method, wkw):
     random.seed(i)
     np.random.seed(i)
@@ -192,13 +276,10 @@ def main():
     parser.add_argument("--weight-method", choices=WEIGHT_METHODS, default="propensity")
     parser.add_argument("--propensity-penalty", choices=["l2", "none"], default="l2")
     parser.add_argument("--propensity-C", type=float, default=1.0)
-    parser.add_argument("--out-dir", type=str, default=None,
-                        help="results/ 配下の出力ディレクトリ名。既定は nonlinear_gamma_target<N>_<weight>")
+    add_layout_args(parser)
     parser.add_argument("--verbose", type=int, default=0)
     parser.add_argument("--smoke", action="store_true")
     args = parser.parse_args()
-
-    from joblib import Parallel, delayed
 
     scenarios, source_ns, gammas = args.scenarios, args.source_ns, args.gammas
     n_trials, n_boot = args.trials, args.bootstraps
@@ -207,11 +288,16 @@ def main():
         n_trials, n_boot = 4, 20
     wkw = {"propensity_penalty": args.propensity_penalty, "propensity_C": args.propensity_C}
 
-    out_dir = PROJECT_ROOT / "results" / (
-        args.out_dir or f"nonlinear_gamma_target{args.target_n}_{args.weight_method}"
-    )
+    weight_tag = args.weight_method
+    if args.weight_method.startswith("propensity"):
+        weight_tag += f"-{args.propensity_penalty}"
+    out_dir = resolve_out_dir(PROJECT_ROOT, args, f"ipw_{weight_tag}_t{args.target_n}_B{n_boot}")
     out_dir.mkdir(parents=True, exist_ok=True)
     summary_path = out_dir / "summary.csv"
+    write_run_meta(out_dir, PROJECT_ROOT, method="IPW", weight=args.weight_method,
+                   propensity=wkw, target_n=args.target_n, n_trials=n_trials,
+                   bootstraps=n_boot, scenarios=scenarios, source_ns=source_ns, gammas=gammas)
+    print(f"output: {out_dir}", flush=True)
 
     # scenario 2(シフト最大)を先に回す(IW-Learn と同じ順序)
     conditions = [
@@ -226,25 +312,19 @@ def main():
     for cond_i, (sc, sn, g) in enumerate(conditions, start=1):
         t0 = time.time()
         csv_path = out_dir / f"trials_{sc}_N{sn}_gamma{g:g}.csv"
-        df = None
-        if csv_path.exists():
-            cached = pd.read_csv(csv_path)
-            if len(cached) == n_trials and f"{PREFIX}_boot_se" in cached.columns:
-                df = cached
-        status = "skip (cached)" if df is not None else "done"
-        if df is None:
-            print(f"[{cond_i}/{len(conditions)}] start {sc} N{sn} gamma={g:g} "
-                  f"({n_trials} trials x B={n_boot}, weights={args.weight_method})", flush=True)
-            rows = Parallel(n_jobs=args.n_jobs, backend="loky", verbose=args.verbose)(
-                delayed(run_one_trial)(i, sc, sn, g, n_boot, args.target_n,
-                                       args.weight_method, wkw)
-                for i in range(n_trials)
-            )
-            df = pd.DataFrame(rows)
-            df.to_csv(csv_path, index=False)
+        print(f"[{cond_i}/{len(conditions)}] start {sc} N{sn} gamma={g:g} "
+              f"({n_trials} trials x B={n_boot}, weights={args.weight_method})", flush=True)
+        df, n_new = load_or_run_trials(
+            csv_path, n_trials, f"{PREFIX}_boot_se",
+            lambda i: run_one_trial(i, sc, sn, g, n_boot, args.target_n,
+                                    args.weight_method, wkw),
+            args.n_jobs, args.verbose,
+        )
+        status = "skip (cached)" if n_new == 0 else f"done (+{n_new} trials)"
         summary_rows.append({"scenario": sc, "source_n": sn, "gamma": g,
                              "method": METHOD_LABEL, "weight_method": args.weight_method,
                              "propensity_penalty": args.propensity_penalty,
+                             "n_trial": len(df), "B": n_boot,
                              **summarize(df, PREFIX)})
         pd.DataFrame(summary_rows).to_csv(summary_path, index=False)
         s = summary_rows[-1]
