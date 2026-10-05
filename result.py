@@ -12,7 +12,7 @@ class Result:
         scenario = config["scenario"]["data_scenario_id"]
         n_source = config["dataset"]["source_number"]
         
-        output_dir = "10_dim_result"
+        output_dir = config.get("output_dir", "results")
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
             

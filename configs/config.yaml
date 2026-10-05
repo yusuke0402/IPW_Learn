@@ -18,3 +18,5 @@ hyperparameters:
     n_split: 5
     n_features: 10
     true_value: 1.0
+
+output_dir: "no_difference_10dim_results"

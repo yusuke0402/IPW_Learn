@@ -1,6 +1,7 @@
 import yaml
 import copy
 import os
+import pandas as pd
 from main import run_experiment
 
 
@@ -10,21 +11,20 @@ def automate():
         base_config = yaml.safe_load(f)
 
     # 実験パターンの定義
-    scenarios = [
-        "data_scenario_1",
-        "data_scenario_2",
-        "data_scenario_3",
-        "data_scenario_4",
-    ]
+    n_features = base_config["hyperparameters"]["n_features"]
+    means_df = pd.read_csv(f"configs/{n_features}dim_means.csv")
+    scenarios = means_df["data_scenario_id"].unique().tolist()
+
     # 人数パターン
     n_patterns = [20, 50, 100, 200, 500, 1000]
 
     total_experiments = len(scenarios) * len(n_patterns)
     current_count = 0
+    output_dir = base_config.get("output_dir", "results")
 
     print("=" * 50)
     print(f"全 {total_experiments} パターンの自動実験を開始します。")
-    print(f"保存先: 10_dim_result/")
+    print(f"保存先: {output_dir}/")
     print("=" * 50)
 
     for scenario_id in scenarios:
@@ -32,7 +32,7 @@ def automate():
             current_count += 1
             print(f"\n[{current_count}/{total_experiments}] 実行中:")
             print(f"  > Scenario: {scenario_id}")
-            print(f"  > Dataset Size (Target=Source=N): {n}")
+            print(f"  > Dataset Size (Source=N): {n}")
 
             # 設定の書き換え
             config = copy.deepcopy(base_config)
@@ -50,7 +50,7 @@ def automate():
     print("\n" + "=" * 50)
     print("すべての実験が完了しました。")
     print(
-        "10_dim_result フォルダ内にシナリオ別のファイルが生成されていることを確認してください。"
+        f"{output_dir} フォルダ内にシナリオ別のファイルが生成されていることを確認してください。"
     )
     print("=" * 50)
 
