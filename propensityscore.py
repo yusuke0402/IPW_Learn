@@ -2,14 +2,16 @@ import numpy as np
 from sklearn.linear_model import LogisticRegression
 
 
-def propensityscore(target_x, source_x, penalty="none", C=1.0, max_iter=1000):
+def propensityscore(target_x, source_x, penalty="l2", C=1.0, max_iter=1000):
     """target(R=1) と source(R=0) を結合してロジスティック回帰を当てはめ、
     各群の傾向スコア e(x) = P(R=1 | x) = P(target | x) を返す。
 
     penalty:
-        "none" : 罰則なしの最尤推定(既定)。t50_comparison/run_ipw_t50.py の
-                 ほぼ無罰則の Newton 法と同じ推定対象。
-        "l2"   : sklearn 既定の L2 罰則(強さは C。小さいほど強い)。旧実装の挙動。
+        "l2"   : sklearn 既定の L2 罰則(強さは C=1.0、小さいほど強い)。既定。
+                 PSS-Learn の propensityscore.py と同じ推定量で、傾向スコア系の
+                 手法間で揃えるためにこちらを既定にしている。
+        "none" : 罰則なしの最尤推定。t50_comparison/run_ipw_t50.py の
+                 ほぼ無罰則の Newton 法と同じ推定対象(感度解析用)。
     完全分離などで収束しない場合でも例外は投げず、sklearn の返す係数をそのまま使う
     (重みの極端さは ESS・最大重みの診断で確認する)。
     """

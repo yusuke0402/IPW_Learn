@@ -191,7 +191,7 @@ def main():
     parser.add_argument("--scenarios", type=str, nargs="+",
                         default=["data_scenario_1", "data_scenario_2", "data_scenario_3"])
     parser.add_argument("--weight-method", choices=WEIGHT_METHODS, default="propensity")
-    parser.add_argument("--propensity-penalty", choices=["none", "l2"], default="none")
+    parser.add_argument("--propensity-penalty", choices=["l2", "none"], default="l2")
     parser.add_argument("--propensity-C", type=float, default=1.0)
     parser.add_argument("--out-dir", type=str, default=None,
                         help="results/ 配下の出力ディレクトリ名。既定は nonlinear_gamma_target<N>_<weight>")

@@ -15,8 +15,8 @@ hyperparameters:
     n_features: 10
     # 重みの種類: uniform / propensity / propensity_ate / ulsif / oracle (weight.py 参照)
     weight_method: "propensity"
-    # propensity 系のロジスティック回帰の罰則: "none"(最尤) / "l2"(sklearn 既定、強さ propensity_C)
-    propensity_penalty: "none"
+    # propensity 系のロジスティック回帰の罰則: "l2"(sklearn 既定、強さ propensity_C。PSS-Learn と同じ) / "none"(最尤)
+    propensity_penalty: "l2"
     propensity_C: 1.0
 
 dataset:

@@ -12,8 +12,8 @@ target 側は重みなし(w_t = 1)、source 側に密度比
 - "uniform"        : w_s = 1。輸送なしの単純平均差(ベースライン)。
 - "propensity"     : ロジスティック回帰の傾向スコア e(x)=P(R=1|x) のオッズ
                      w_s = e/(1-e)。密度比 r(x) に比例する(定数倍は自己正規化で消える)。
-                     罰則は hyperparameters.propensity_penalty("none" = 最尤(既定) /
-                     "l2" = sklearn 既定、強さ propensity_C)で選ぶ。
+                     罰則は hyperparameters.propensity_penalty("l2" = sklearn 既定、
+                     強さ propensity_C、既定 / "none" = 最尤)で選ぶ。
 - "propensity_ate" : 旧実装。w_t = 1/e, w_s = 1/(1-e) で target/source の両方を
                      混合集団へ重み付けする(推定対象が Δ_c ではない点に注意)。
 - "ulsif"          : uLSIF(Kanamori et al. 2009)で r(x) を直接推定。IW-Learn の
@@ -34,11 +34,11 @@ WEIGHT_METHODS = ("uniform", "propensity", "propensity_ate", "ulsif", "oracle")
 
 
 def compute_weights(method, target_x, source_x, means=None, covariances=None,
-                    propensity_penalty="none", propensity_C=1.0):
+                    propensity_penalty="l2", propensity_C=1.0):
     """(w_target, w_source) を返す。どちらも 1 次元配列。
 
     propensity_penalty / propensity_C は "propensity" / "propensity_ate" のときの
-    ロジスティック回帰の罰則("none" = 最尤、"l2" = sklearn 既定の L2)。
+    ロジスティック回帰の罰則("l2" = sklearn 既定の L2(既定)、"none" = 最尤)。
     """
     ps_kw = {"penalty": propensity_penalty, "C": propensity_C}
     if method == "uniform":

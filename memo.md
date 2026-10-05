@@ -12,8 +12,9 @@ weight.py で重みの種類を選べるようにした。configs/config.yaml �
 - oracle: 真のガウス分布からの密度比
 
 ### 残課題
-- (済 2026-10-05) 傾向スコアの罰則を `propensity_penalty`("none" = 最尤(既定) / "l2")と `propensity_C` で選べるようにした。
-  既定を最尤にして t50_comparison/run_ipw_t50.py(ほぼ無罰則)と揃えた。旧挙動は `propensity_penalty: l2, propensity_C: 1.0`。
+- (済 2026-10-05) 傾向スコアの罰則を `propensity_penalty`("l2" = sklearn 既定 C=1(既定) / "none" = 最尤)と `propensity_C` で選べるようにした。
+  既定は元の実装どおり L2・C=1 のまま。PSS-Learn の propensityscore.py と同じ推定量で、傾向スコア系の手法間で揃えるため。
+  最尤("none")は分離が頻発する(10 次元・target 20 で 37〜86%)ので感度解析用。t50_comparison/run_ipw_t50.py はほぼ無罰則なので比較時は注意。
 - (済 2026-10-05) `scripts/nonlinear_gamma_ipw.py` を追加。IW-Learn と同一データ生成の非線形 γ 実験で、
   `--weight-method` で propensity / ulsif / uniform / oracle / propensity_ate を選べる(bootstrap 付き、summary は IW-Learn 形式)。
 - (済 2026-10-05) main.py に任意の full-pipeline bootstrap(`n_bootstraps`、0 で無効)を追加。

@@ -42,7 +42,7 @@ def _weight_kwargs(config):
     """propensity 系のロジスティック回帰の罰則設定(weight.py の compute_weights へ渡す)。"""
     hp = config["hyperparameters"]
     return {
-        "propensity_penalty": hp.get("propensity_penalty", "none"),
+        "propensity_penalty": hp.get("propensity_penalty", "l2"),
         "propensity_C": hp.get("propensity_C", 1.0),
     }
 
