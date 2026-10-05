@@ -33,6 +33,9 @@ import os
 for _var in ("OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS",
              "BLIS_NUM_THREADS", "VECLIB_MAXIMUM_THREADS", "NUMEXPR_NUM_THREADS"):
     os.environ.setdefault(_var, "1")
+# numpy 2.0 + Accelerate の matmul 誤検知警告(値は正常)を joblib ワーカーでも抑止する。
+# warnings.filterwarnings はワーカーに継承されないため、環境変数で指定する。
+os.environ.setdefault("PYTHONWARNINGS", "ignore::RuntimeWarning")
 
 import argparse
 import random
