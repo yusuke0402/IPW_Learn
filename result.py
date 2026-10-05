@@ -53,6 +53,8 @@ class Result:
                 "coverage_probability_95": _coverage(
                     "estimate_95ci_lower", "estimate_95ci_upper"
                 ),
+                "mean_ess_source": _mean_col("ess_source"),
+                "mean_max_weight_source": _mean_col("max_weight_source"),
             }
         else:
             stats = {
@@ -63,9 +65,12 @@ class Result:
                 "mean_bootstrap_variance": None,
                 "mean_bootstrap_se": None,
                 "coverage_probability_95": None,
+                "mean_ess_source": None,
+                "mean_max_weight_source": None,
             }
         summary_data = {
             "method": "Inverse Propensityscore Weighted Learning",
+            "weight_method": config["hyperparameters"].get("weight_method", "propensity"),
             "timestamp": now,
             "senario_name": scenario,
             "model_id": config["scenario"]["model_id"],
