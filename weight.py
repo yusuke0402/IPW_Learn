@@ -12,6 +12,8 @@ target 側は重みなし(w_t = 1)、source 側に密度比
 - "uniform"        : w_s = 1。輸送なしの単純平均差(ベースライン)。
 - "propensity"     : ロジスティック回帰の傾向スコア e(x)=P(R=1|x) のオッズ
                      w_s = e/(1-e)。密度比 r(x) に比例する(定数倍は自己正規化で消える)。
+                     罰則は hyperparameters.propensity_penalty("none" = 最尤(既定) /
+                     "l2" = sklearn 既定、強さ propensity_C)で選ぶ。
 - "propensity_ate" : 旧実装。w_t = 1/e, w_s = 1/(1-e) で target/source の両方を
                      混合集団へ重み付けする(推定対象が Δ_c ではない点に注意)。
 - "ulsif"          : uLSIF(Kanamori et al. 2009)で r(x) を直接推定。IW-Learn の
@@ -31,14 +33,20 @@ from propensityscore import propensityscore
 WEIGHT_METHODS = ("uniform", "propensity", "propensity_ate", "ulsif", "oracle")
 
 
-def compute_weights(method, target_x, source_x, means=None, covariances=None):
-    """(w_target, w_source) を返す。どちらも 1 次元配列。"""
+def compute_weights(method, target_x, source_x, means=None, covariances=None,
+                    propensity_penalty="none", propensity_C=1.0):
+    """(w_target, w_source) を返す。どちらも 1 次元配列。
+
+    propensity_penalty / propensity_C は "propensity" / "propensity_ate" のときの
+    ロジスティック回帰の罰則("none" = 最尤、"l2" = sklearn 既定の L2)。
+    """
+    ps_kw = {"penalty": propensity_penalty, "C": propensity_C}
     if method == "uniform":
         return np.ones(target_x.shape[0]), np.ones(source_x.shape[0])
     if method == "propensity":
-        return _propensity_odds_weights(target_x, source_x)
+        return _propensity_odds_weights(target_x, source_x, **ps_kw)
     if method == "propensity_ate":
-        return _propensity_ate_weights(target_x, source_x)
+        return _propensity_ate_weights(target_x, source_x, **ps_kw)
     if method == "ulsif":
         return np.ones(target_x.shape[0]), ULSIF().fit(target_x, source_x).density_ratio(source_x)
     if method == "oracle":
@@ -67,15 +75,15 @@ def effective_sample_size(weight):
 
 
 # ---------------------------------------------------------------- propensity
-def _propensity_odds_weights(target_x, source_x):
+def _propensity_odds_weights(target_x, source_x, **ps_kw):
     # propensityscore は P(R=1|x)=P(target|x) を返す(切片列は除いて渡す)
-    _, ps_source = propensityscore(target_x[:, 1:], source_x[:, 1:])
+    _, ps_source = propensityscore(target_x[:, 1:], source_x[:, 1:], **ps_kw)
     ps_source = np.clip(ps_source, 1e-12, 1 - 1e-12)
     return np.ones(target_x.shape[0]), ps_source / (1.0 - ps_source)
 
 
-def _propensity_ate_weights(target_x, source_x):
-    ps_target, ps_source = propensityscore(target_x[:, 1:], source_x[:, 1:])
+def _propensity_ate_weights(target_x, source_x, **ps_kw):
+    ps_target, ps_source = propensityscore(target_x[:, 1:], source_x[:, 1:], **ps_kw)
     ps_target = np.clip(ps_target, 1e-12, 1 - 1e-12)
     ps_source = np.clip(ps_source, 1e-12, 1 - 1e-12)
     return 1.0 / ps_target, 1.0 / (1.0 - ps_source)

@@ -12,6 +12,10 @@ weight.py で重みの種類を選べるようにした。configs/config.yaml �
 - oracle: 真のガウス分布からの密度比
 
 ### 残課題
-- 傾向スコアは sklearn の既定（L2, C=1）のまま。t50_comparison/run_ipw_t50.py はほぼ無罰則なので揃えるか検討
+- (済 2026-10-05) 傾向スコアの罰則を `propensity_penalty`("none" = 最尤(既定) / "l2")と `propensity_C` で選べるようにした。
+  既定を最尤にして t50_comparison/run_ipw_t50.py(ほぼ無罰則)と揃えた。旧挙動は `propensity_penalty: l2, propensity_C: 1.0`。
+- (済 2026-10-05) `scripts/nonlinear_gamma_ipw.py` を追加。IW-Learn と同一データ生成の非線形 γ 実験で、
+  `--weight-method` で propensity / ulsif / uniform / oracle / propensity_ate を選べる(bootstrap 付き、summary は IW-Learn 形式)。
+- (済 2026-10-05) main.py に任意の full-pipeline bootstrap(`n_bootstraps`、0 で無効)を追加。
 - oracle は 10 次元・大きなシフトで重みが極端になり分散が大きい（想定どおりだが要注意）
 - numpy 2.0.2 + Accelerate で `divide by zero encountered in matmul` の誤検知警告が出る（値は正常）
