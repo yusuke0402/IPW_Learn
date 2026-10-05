@@ -1,22 +1,18 @@
-from sklearn.linear_model import LogisticRegression
 import numpy as np
-
-def propensityscore(target_x,target_y,source_x,source_y):
-
-    marge_X=np.vstack([target_x,source_x])
-    
-    target_Y=np.zeros_like(target_y).reshape(-1)
-    source1_Y=np.ones_like(source_y).reshape(-1)
-    
-    marge_Y=np.concatenate((target_Y,source1_Y),axis=0)
-    
-    logi_model=LogisticRegression()
-    
-    logi_model.fit(marge_X,marge_Y)
-   
-    source_propensityscore=logi_model.predict_proba(source_x)[:,0]
-    target_propensityscore=logi_model.predict_proba(target_x)[:,0]
-    
-    return target_propensityscore,source_propensityscore
+from sklearn.linear_model import LogisticRegression
 
 
+def propensityscore(target_x, source_x):
+    """target(R=1) と source(R=0) を結合してロジスティック回帰を当てはめ、
+    各群の傾向スコア e(x) = P(R=1 | x) = P(target | x) を返す。"""
+    merged_x = np.vstack([target_x, source_x])
+    merged_r = np.concatenate(
+        (np.ones(target_x.shape[0]), np.zeros(source_x.shape[0])), axis=0
+    )
+
+    model = LogisticRegression()
+    model.fit(merged_x, merged_r)
+
+    target_ps = model.predict_proba(target_x)[:, 1]
+    source_ps = model.predict_proba(source_x)[:, 1]
+    return target_ps, source_ps
