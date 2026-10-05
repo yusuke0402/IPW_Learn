@@ -13,7 +13,7 @@ hyperparameters:
     n_bootstraps: 1000   # full-pipeline bootstrap の反復数(0 で点推定のみ)
     n_jobs: "auto"       # "auto" = min(CPU-2, 8)、-1 = 全コア
     n_features: 10
-    # 重みの種類: uniform / propensity / propensity_ate / ulsif / oracle (weight.py 参照)
+    # 重みの種類: uniform / propensity / ulsif / oracle (weight.py 参照)
     weight_method: "propensity"
     # propensity 系のロジスティック回帰の罰則: "l2"(sklearn 既定、強さ propensity_C。PSS-Learn と同じ) / "none"(最尤)
     propensity_penalty: "l2"

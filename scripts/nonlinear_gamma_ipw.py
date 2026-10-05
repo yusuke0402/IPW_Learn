@@ -10,7 +10,6 @@
     ulsif          : uLSIF の密度比(IW-Learn / AIPW-Learn と同一手順)
     uniform        : 一様(輸送なしの平均差)
     oracle         : 真のガウス分布からの密度比
-    propensity_ate : 旧実装(target 1/e, source 1/(1-e))
 
 IW-Learn の scripts/nonlinear_gamma_experiment.py と同一のシード・乱数消費順序で
 データを生成するため、trial 番号で突き合わせれば IWL と同一データのペア比較になる。
