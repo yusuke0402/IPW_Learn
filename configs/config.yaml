@@ -8,6 +8,10 @@ scenario:
   model_scenario_id: "model_scenario_1"
 
 hyperparameters:
+    # Kish ESS = (sum w)^2 / sum(w^2); change to 5 or 10 for sensitivity analysis.
+    min_ess: 3.0
+    # CI is missing when failed bootstrap proportion exceeds this value.
+    max_bootstrap_failure_rate: 0.05
     alpha: 1
     n_trial: 300
     n_bootstraps: 1000   # full-pipeline bootstrap の反復数(0 で点推定のみ)

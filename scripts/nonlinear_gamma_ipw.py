@@ -50,12 +50,8 @@ import pandas as pd
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from weight import (  # noqa: E402
-    WEIGHT_METHODS,
-    compute_weights,
-    effective_sample_size,
-    weighted_mean_difference,
-)
+from weight import WEIGHT_METHODS, ipw_estimate
+
 
 # numpy 2.0 + Accelerate の matmul 誤検知警告を抑える(値は正常)
 warnings.filterwarnings("ignore", message=".*encountered in matmul")
@@ -121,8 +117,9 @@ def _true_dist(scenario):
 
 
 def _estimate(tx, ty, sx, sy, method, means, covs, wkw):
-    wt, ws = compute_weights(method, tx, sx, means=means, covariances=covs, **wkw)
-    return weighted_mean_difference(wt, ty, ws, sy), ws
+    result = ipw_estimate(tx, ty, sx, sy, method=method, means=means, covariances=covs, **wkw)
+    return result["estimate"], result["source_weights"]
+
 
 
 
@@ -153,47 +150,14 @@ def resolve_out_dir(root, args, run_name_default):
     return root / "results" / "v2" / purpose / (args.run_name or run_name_default)
 
 
-def write_run_meta(out_dir, root, **meta):
-    import datetime
-    import json
-    import platform
-    meta.update(
-        git_commit=_git_commit(root),
-        timestamp=datetime.datetime.now().isoformat(timespec="seconds"),
-        host=platform.node(),
-    )
-    (out_dir / "run_meta.json").write_text(
-        json.dumps(meta, indent=2, ensure_ascii=False, default=str), encoding="utf-8"
-    )
-
-
-def load_or_run_trials(csv_path, n_trials, required_col, run_fn, n_jobs, verbose):
-    """試行単位のレジューム。戻り値は (trial < n_trials の DataFrame, 新規計算した試行数)。
-
-    既存 CSV の行は(n_trials より大きい trial も含めて)捨てずに保持し、
-    足りない trial だけ run_fn(i) で計算して追記する。列構成が違う古い CSV は作り直す。
-    """
-    from joblib import Parallel, delayed
-    cached = None
-    if csv_path.exists():
-        c = pd.read_csv(csv_path)
-        if required_col in c.columns and "trial" in c.columns:
-            cached = c
-    done = set(cached["trial"].astype(int)) if cached is not None else set()
-    todo = [i for i in range(n_trials) if i not in done]
-    if todo:
-        rows = Parallel(n_jobs=n_jobs, backend="loky", verbose=verbose)(
-            delayed(run_fn)(i) for i in todo
-        )
-        new = pd.DataFrame(rows)
-        df_all = (pd.concat([cached, new], ignore_index=True)
-                  if cached is not None and len(cached) else new)
-        df_all = df_all.sort_values("trial").reset_index(drop=True)
-        df_all.to_csv(csv_path, index=False)
-    else:
-        df_all = cached
-    df = df_all[df_all["trial"] < n_trials].sort_values("trial").reset_index(drop=True)
-    return df, len(todo)
+# The shared helpers reject incompatible cached runs before writing anything.
+from experiment_io import write_run_meta, load_or_run_trials  # noqa: E402
+from experiment_execution import (  # noqa: E402
+    run_weighted_bootstrap, diagnostic_columns, variant_columns, summarize_trials,
+)
+from experiment_diagnostics import (  # noqa: E402
+    DEFAULT_MIN_ESS, DEFAULT_MAX_BOOTSTRAP_FAILURE_RATE, validate_min_ess,
+)
 
 
 def add_layout_args(parser):
@@ -207,66 +171,33 @@ def add_layout_args(parser):
                         help="results/ 相対の出力先を直接指定(規約を使わない場合のみ)")
 
 
-def run_one_trial(i, scenario, source_n, gamma, n_bootstraps, target_n, method, wkw):
+def run_one_trial(i, scenario, source_n, gamma, n_bootstraps, target_n, method, wkw,
+                  max_bootstrap_failure_rate=DEFAULT_MAX_BOOTSTRAP_FAILURE_RATE):
     random.seed(i)
     np.random.seed(i)
-    target_x, target_y, source_x, source_y = generate_data(
-        scenario, source_n, gamma, target_n
-    )
+    tx, ty, sx, sy = generate_data(scenario, source_n, gamma, target_n)
     means, covs = _true_dist(scenario)
-    est, ws = _estimate(target_x, target_y, source_x, source_y, method, means, covs, wkw)
-
-    # target・source とも復元抽出し、重み(傾向スコア / uLSIF の σ, λ 選択)を反復ごとに推定し直す
-    rng = np.random.default_rng(i)
-    boot = []
-    for _ in range(n_bootstraps):
-        t_idx = rng.choice(target_n, size=target_n, replace=True)
-        s_idx = rng.choice(source_n, size=source_n, replace=True)
-        try:
-            b, _ = _estimate(target_x[t_idx], target_y[t_idx],
-                             source_x[s_idx], source_y[s_idx], method, means, covs, wkw)
-        except Exception:
-            continue
-        if np.isfinite(b):
-            boot.append(b)
-    boot = np.array(boot)
-    return {
-        "trial": i,
-        f"{PREFIX}_estimate": float(est),
-        f"{PREFIX}_boot_se": float(boot.std(ddof=1)),
-        f"{PREFIX}_ci_lower": float(np.percentile(boot, 2.5)),
-        f"{PREFIX}_ci_upper": float(np.percentile(boot, 97.5)),
-        f"{PREFIX}_boot_n": int(boot.size),
-        f"{PREFIX}_ess": effective_sample_size(ws),
-        f"{PREFIX}_max_weight": float(np.max(ws)),
-    }
+    run = run_weighted_bootstrap(
+        lambda a, b, c, d: ipw_estimate(a, b, c, d, method=method,
+                                      means=means, covariances=covs, **wkw),
+        tx, ty, sx, sy, n_bootstraps, i, max_failure_rate=max_bootstrap_failure_rate,
+        min_ess=wkw.get("min_ess", DEFAULT_MIN_ESS))
+    return {"trial": i, **diagnostic_columns(run, "ipw_"),
+            **variant_columns(run, PREFIX),
+            "ipw_max_weight": run["point"].get("max_weight", np.nan)}
 
 
 def summarize(df, prefix):
-    est = df[f"{prefix}_estimate"]
-    lo = df[f"{prefix}_ci_lower"]
-    hi = df[f"{prefix}_ci_upper"]
-    stats = {
-        "mean": est.mean(),
-        "bias": est.mean() - TRUE_VALUE,
-        "sd": est.std(ddof=1),
-        "rmse": float(np.sqrt(((est - TRUE_VALUE) ** 2).mean())),
-        "coverage": float(((lo <= TRUE_VALUE) & (TRUE_VALUE <= hi)).mean()),
-        "ci_width": float((hi - lo).mean()),
-    }
-    se = df[f"{prefix}_boot_se"]
-    nlo, nhi = est - 1.96 * se, est + 1.96 * se
-    stats["coverage_normal"] = float(((nlo <= TRUE_VALUE) & (TRUE_VALUE <= nhi)).mean())
-    stats["ci_width_normal"] = float((nhi - nlo).mean())
-    stats["boot_n_mean"] = float(df[f"{prefix}_boot_n"].mean())
-    stats["boot_n_min"] = int(df[f"{prefix}_boot_n"].min())
-    stats["ess_median"] = float(df[f"{prefix}_ess"].median())
+    stats = summarize_trials(df, prefix, TRUE_VALUE)
     stats["max_weight_mean"] = float(df[f"{prefix}_max_weight"].mean())
     return stats
 
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument("--config", type=Path, default=PROJECT_ROOT / "configs/config.yaml")
+    parser.add_argument("--min-ess", type=float, default=None)
+    parser.add_argument("--max-bootstrap-failure-rate", type=float, default=None)
     parser.add_argument("--trials", type=int, default=1000)
     parser.add_argument("--bootstraps", type=int, default=1000)
     parser.add_argument("--n-jobs", type=int, default=8)
@@ -283,23 +214,35 @@ def main():
     parser.add_argument("--verbose", type=int, default=0)
     parser.add_argument("--smoke", action="store_true")
     args = parser.parse_args()
+    import yaml
+    config = yaml.safe_load(args.config.read_text(encoding="utf-8")) or {}
+    hp = config.get("hyperparameters", {})
+    args.min_ess = validate_min_ess(args.min_ess if args.min_ess is not None else hp.get("min_ess", DEFAULT_MIN_ESS))
+    args.max_bootstrap_failure_rate = (args.max_bootstrap_failure_rate if args.max_bootstrap_failure_rate is not None
+                                       else hp.get("max_bootstrap_failure_rate", DEFAULT_MAX_BOOTSTRAP_FAILURE_RATE))
+    if not np.isfinite(args.max_bootstrap_failure_rate) or not 0 <= args.max_bootstrap_failure_rate <= 1:
+        parser.error("max-bootstrap-failure-rate must be between 0 and 1")
+    if args.trials < 1 or args.bootstraps < 0 or args.target_n < 5 or min(args.source_ns) < 5:
+        parser.error("Require trials >= 1, bootstraps >= 0 and sample sizes >= 5")
 
     scenarios, source_ns, gammas = args.scenarios, args.source_ns, args.gammas
     n_trials, n_boot = args.trials, args.bootstraps
     if args.smoke:
         scenarios, source_ns, gammas = ["data_scenario_2"], [100], [0.5]
         n_trials, n_boot = 4, 20
-    wkw = {"propensity_penalty": args.propensity_penalty, "propensity_C": args.propensity_C}
+    wkw = {"propensity_penalty": args.propensity_penalty, "propensity_C": args.propensity_C,
+           "min_ess": args.min_ess}
 
     weight_tag = args.weight_method
     if args.weight_method.startswith("propensity"):
         weight_tag += f"-{args.propensity_penalty}"
-    out_dir = resolve_out_dir(PROJECT_ROOT, args, f"ipw_{weight_tag}_t{args.target_n}_B{n_boot}")
+    out_dir = resolve_out_dir(PROJECT_ROOT, args, f"ipw_{weight_tag}_t{args.target_n}_B{n_boot}_ess{args.min_ess:g}_bf{args.max_bootstrap_failure_rate:g}")
     out_dir.mkdir(parents=True, exist_ok=True)
     summary_path = out_dir / "summary.csv"
     write_run_meta(out_dir, PROJECT_ROOT, method="IPW", weight=args.weight_method,
                    propensity=wkw, target_n=args.target_n, n_trials=n_trials,
-                   bootstraps=n_boot, scenarios=scenarios, source_ns=source_ns, gammas=gammas)
+                   bootstraps=n_boot, min_ess=args.min_ess,
+                   max_bootstrap_failure_rate=args.max_bootstrap_failure_rate, scenarios=scenarios, source_ns=source_ns, gammas=gammas)
     print(f"output: {out_dir}", flush=True)
 
     # scenario 2(シフト最大)を先に回す(IW-Learn と同じ順序)
@@ -320,7 +263,7 @@ def main():
         df, n_new = load_or_run_trials(
             csv_path, n_trials, f"{PREFIX}_boot_se",
             lambda i: run_one_trial(i, sc, sn, g, n_boot, args.target_n,
-                                    args.weight_method, wkw),
+                                    args.weight_method, wkw, args.max_bootstrap_failure_rate),
             args.n_jobs, args.verbose,
         )
         status = "skip (cached)" if n_new == 0 else f"done (+{n_new} trials)"

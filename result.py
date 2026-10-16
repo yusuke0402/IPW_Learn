@@ -1,8 +1,10 @@
 import os
 import datetime
-import numpy as np
 import pandas as pd
 import yaml
+
+from experiment_execution import summarize_trials
+from experiment_diagnostics import DEFAULT_MIN_ESS, DEFAULT_MAX_BOOTSTRAP_FAILURE_RATE
 
 
 class Result:
@@ -24,50 +26,20 @@ class Result:
         print(f"詳細ログを保存しました: {csv_path}")
 
         # 統計量の計算
-        estimates = df["estimate_value"]
-
-        if not estimates.isnull().all():
-            valid = df.dropna(subset=["estimate_value"])
-            valid_estimates = valid["estimate_value"].values
-            true_value = config["dataset"]["true_value"]
-
-            def _coverage(lo_col, hi_col):
-                if lo_col in valid.columns and hi_col in valid.columns:
-                    lo = valid[lo_col].values
-                    hi = valid[hi_col].values
-                    return float(np.mean((lo <= true_value) & (true_value <= hi)))
-                return None
-
-            def _mean_col(col):
-                if col in valid.columns:
-                    return float(np.mean(valid[col].values))
-                return None
-
-            stats = {
-                "mean": float(np.mean(valid_estimates)),
-                "variance": float(np.var(valid_estimates, ddof=1)),
-                "std_dev": float(np.std(valid_estimates, ddof=1)),
-                "mse": float(np.mean((valid_estimates - true_value) ** 2)),
-                "mean_bootstrap_variance": _mean_col("bootstrap_variance"),
-                "mean_bootstrap_se": _mean_col("bootstrap_se"),
-                "coverage_probability_95": _coverage(
-                    "estimate_95ci_lower", "estimate_95ci_upper"
-                ),
-                "mean_ess_source": _mean_col("ess_source"),
-                "mean_max_weight_source": _mean_col("max_weight_source"),
-            }
-        else:
-            stats = {
-                "mean": None,
-                "variance": None,
-                "std_dev": None,
-                "mse": None,
-                "mean_bootstrap_variance": None,
-                "mean_bootstrap_se": None,
-                "coverage_probability_95": None,
-                "mean_ess_source": None,
-                "mean_max_weight_source": None,
-            }
+        frame = df.rename(columns={
+            "estimate_value": "method_estimate", "bootstrap_se": "method_boot_se",
+            "estimate_95ci_lower": "method_ci_lower", "estimate_95ci_upper": "method_ci_upper",
+            "ci_error": "method_ci_error", "boot_n": "method_boot_n"})
+        frame = frame.rename(columns={c: "method_" + c for c in (
+            "point_error_type", "boot_requested", "boot_failed", "boot_failed_ESS", "ess",
+            "min_ess", "max_bootstrap_failure_rate")})
+        stats = summarize_trials(frame, "method", config["dataset"]["true_value"])
+        stats.update(std_dev=stats["sd"], mse=stats["rmse"] ** 2,
+                     mean_bootstrap_variance=float(df["bootstrap_variance"].mean()),
+                     mean_bootstrap_se=float(df["bootstrap_se"].mean()),
+                     coverage_probability_95=stats["coverage"])
+        stats.update(mean_ess_source=float(df["ess_source"].mean()),
+                     mean_max_weight_source=float(df["max_weight_source"].mean()))
         summary_data = {
             "method": "Inverse Propensityscore Weighted Learning",
             "weight_method": config["hyperparameters"].get("weight_method", "propensity"),
@@ -80,6 +52,12 @@ class Result:
             "source_number": n_source,
             "n_trial": config["hyperparameters"]["n_trial"],
             "statistics": stats,
+            "feasibility_rule": {
+                "min_ess": config["hyperparameters"].get("min_ess", DEFAULT_MIN_ESS),
+                "max_bootstrap_failure_rate": config["hyperparameters"].get(
+                    "max_bootstrap_failure_rate", DEFAULT_MAX_BOOTSTRAP_FAILURE_RATE),
+                "scope": "historical sample in point and each full-pipeline bootstrap fit",
+            },
             "notes": "Automated experiment run",
         }
         yaml_path = f"{output_dir}/summary_{scenario}_N{n_source}_{now}.yaml"
