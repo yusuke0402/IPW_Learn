@@ -27,24 +27,35 @@ from sklearn.metrics import pairwise_distances
 from sklearn.metrics.pairwise import rbf_kernel
 
 from propensityscore import propensityscore
+from experiment_diagnostics import (
+    DEFAULT_MIN_ESS, NUMERICAL_ERRORS, assess_ess, validate_min_ess, weight_diagnostics,
+)
 
 WEIGHT_METHODS = ("uniform", "propensity", "ulsif", "oracle")
 
 
 def compute_weights(method, target_x, source_x, means=None, covariances=None,
-                    propensity_penalty="l2", propensity_C=1.0):
+                    propensity_penalty="l2", propensity_C=1.0,
+                    min_ess=DEFAULT_MIN_ESS, diagnostics=None):
     """(w_target, w_source) を返す。どちらも 1 次元配列。
 
     propensity_penalty / propensity_C は "propensity" のときの
     ロジスティック回帰の罰則("l2" = sklearn 既定の L2(既定)、"none" = 最尤)。
     """
+    min_ess = validate_min_ess(min_ess)
     ps_kw = {"penalty": propensity_penalty, "C": propensity_C}
     if method == "uniform":
         return np.ones(target_x.shape[0]), np.ones(source_x.shape[0])
     if method == "propensity":
         return _propensity_odds_weights(target_x, source_x, **ps_kw)
     if method == "ulsif":
-        return np.ones(target_x.shape[0]), ULSIF().fit(target_x, source_x).density_ratio(source_x)
+        model = ULSIF(min_ess=min_ess).fit(target_x, source_x)
+        weights = model.density_ratio(source_x)
+        if diagnostics is not None:
+            diagnostics.update(raw=model.raw_weight_diagnostics_,
+                               zero_weight_fallback=model.ratio_zero_fallback_,
+                               ratio_sigma=model.sigma_, ratio_lambda=model.lambda_)
+        return np.ones(target_x.shape[0]), weights
     if method == "oracle":
         if means is None or covariances is None:
             raise ValueError("oracle weights need the true means and covariances")
@@ -54,8 +65,11 @@ def compute_weights(method, target_x, source_x, means=None, covariances=None,
     raise ValueError(f"Unknown weight method: {method!r} (choose from {WEIGHT_METHODS})")
 
 
-def weighted_mean_difference(weight_target, target_y, weight_source, source_y):
+def weighted_mean_difference(weight_target, target_y, weight_source, source_y, min_ess=DEFAULT_MIN_ESS):
     """Hájek 型の重み付き平均差。"""
+    assess_ess(weight_source, min_ess)
+    if weight_diagnostics(weight_target)["positive_weights"] == 0:
+        raise ValueError("Target weights must have positive sum.")
     target_y = np.asarray(target_y).ravel()
     source_y = np.asarray(source_y).ravel()
     return float(
@@ -66,8 +80,26 @@ def weighted_mean_difference(weight_target, target_y, weight_source, source_y):
 
 def effective_sample_size(weight):
     """Kish の有効標本数 (Σw)^2 / Σw^2。"""
-    weight = np.asarray(weight).ravel()
-    return float(weight.sum() ** 2 / np.sum(weight**2))
+    return weight_diagnostics(weight)["ess"]
+
+
+def ipw_estimate(target_x, target_y, source_x, source_y, method="propensity",
+                 min_ess=DEFAULT_MIN_ESS, **kwargs):
+    """Compute source ESS before taking any weighted mean."""
+    minimum = validate_min_ess(min_ess)
+    metadata, diagnostics = {}, {}
+    try:
+        wt, ws = compute_weights(method, target_x, source_x, min_ess=minimum,
+                                 diagnostics=metadata, **kwargs)
+        diagnostics = assess_ess(ws, minimum, **metadata)
+        estimate = weighted_mean_difference(wt, target_y, ws, source_y, min_ess=minimum)
+        return dict(estimate=estimate, ess=diagnostics["full"]["ess"],
+                    max_weight=float(np.max(ws)), source_weights=ws,
+                    ess_diagnostics=diagnostics)
+    except NUMERICAL_ERRORS as exc:
+        if not hasattr(exc, "ess_diagnostics"):
+            exc.ess_diagnostics = diagnostics
+        raise
 
 
 # ---------------------------------------------------------------- propensity
@@ -105,6 +137,9 @@ class ULSIF:
     CV_FOLDS = 5
     MAX_BASIS = 100  # Kanamori et al. 2009 §2.5: b = min(100, n_te)
 
+    def __init__(self, min_ess=DEFAULT_MIN_ESS):
+        self.min_ess = validate_min_ess(min_ess)
+
     def fit(self, target_x, source_x):
         n_target = target_x.shape[0]
         n_source = source_x.shape[0]
@@ -133,8 +168,9 @@ class ULSIF:
     def density_ratio(self, x):
         K = rbf_kernel(x, self.basis_, gamma=1.0 / (2 * self.sigma_**2))
         r = np.maximum(K @ self.coef_, 0.0)
-        # 全重みゼロ(当てはめの退化)への保険: 一様重みに退避
-        if r.sum() <= 0:
+        self.raw_weight_diagnostics_ = weight_diagnostics(r)
+        self.ratio_zero_fallback_ = self.min_ess == 0 and self.raw_weight_diagnostics_["positive_weights"] == 0
+        if self.ratio_zero_fallback_:
             return np.ones(x.shape[0])
         return r
 
