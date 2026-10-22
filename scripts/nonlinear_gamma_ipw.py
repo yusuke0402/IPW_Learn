@@ -50,7 +50,7 @@ import pandas as pd
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from weight import WEIGHT_METHODS, ipw_estimate
+from weight import WEIGHT_METHODS, ULSIF, gaussian_oracle_metadata, ipw_estimate
 
 
 # numpy 2.0 + Accelerate の matmul 誤検知警告を抑える(値は正常)
@@ -121,8 +121,9 @@ def _true_dist(scenario):
     return means, covs
 
 
-def _estimate(tx, ty, sx, sy, method, means, covs, wkw):
-    result = ipw_estimate(tx, ty, sx, sy, method=method, means=means, covariances=covs, **wkw)
+def _estimate(tx, ty, sx, sy, method, means, covs, wkw, *, target_ids=None, source_ids=None):
+    result = ipw_estimate(tx, ty, sx, sy, method=method, means=means, covariances=covs,
+                          target_ids=target_ids, source_ids=source_ids, **wkw)
     return result["estimate"], result["source_weights"]
 
 
@@ -183,10 +184,13 @@ def run_one_trial(i, scenario, source_n, gamma, n_bootstraps, target_n, method, 
     tx, ty, sx, sy = generate_data(scenario, source_n, gamma, target_n)
     means, covs = _true_dist(scenario)
     run = run_weighted_bootstrap(
-        lambda a, b, c, d: ipw_estimate(a, b, c, d, method=method,
-                                      means=means, covariances=covs, **wkw),
+        lambda a, b, c, d, **ids: ipw_estimate(a, b, c, d, method=method,
+                                             means=means, covariances=covs, **ids, **wkw),
         tx, ty, sx, sy, n_bootstraps, i, max_failure_rate=max_bootstrap_failure_rate,
-        min_ess=wkw.get("min_ess", DEFAULT_MIN_ESS))
+        min_ess=wkw.get("min_ess", DEFAULT_MIN_ESS),
+        bootstrap_estimator=lambda a, b, c, d, **ids: ipw_estimate(
+            a, b, c, d, method=method, means=means, covariances=covs, bootstrap=True, **ids, **wkw),
+        pass_observation_ids=True)
     return {"trial": i, **diagnostic_columns(run, "ipw_"),
             **variant_columns(run, PREFIX),
             "ipw_max_weight": run["point"].get("max_weight", np.nan)}
@@ -245,6 +249,10 @@ def main():
     out_dir.mkdir(parents=True, exist_ok=True)
     summary_path = out_dir / "summary.csv"
     write_run_meta(out_dir, PROJECT_ROOT, method="IPW", weight=args.weight_method,
+                   ratio_cv_policy=ULSIF.CV_POLICY if args.weight_method == "ulsif" else None,
+                   ratio_sigma_anchor=ULSIF.SIGMA_ANCHOR if args.weight_method == "ulsif" else None,
+                   oracle_distributions={sc: gaussian_oracle_metadata(*_true_dist(sc)) for sc in MEANS}
+                       if args.weight_method == "oracle" else None,
                    propensity=wkw, target_n=args.target_n, n_trials=n_trials,
                    bootstraps=n_boot, min_ess=args.min_ess,
                    max_bootstrap_failure_rate=args.max_bootstrap_failure_rate, scenarios=scenarios, source_ns=source_ns, gammas=gammas)

@@ -14,9 +14,8 @@ target 側は重みなし(w_t = 1)、source 側に密度比
                      w_s = e/(1-e)。密度比 r(x) に比例する(定数倍は自己正規化で消える)。
                      罰則は hyperparameters.propensity_penalty("l2" = sklearn 既定、
                      強さ propensity_C、既定 / "none" = 最尤)で選ぶ。
-- "ulsif"          : uLSIF(Kanamori et al. 2009)で r(x) を直接推定。IW-Learn の
-                     importance_weighted_learn.py と同じ手順((σ, λ) を J 規準の
-                     5-fold CV で選択、基底点は target から min(100, n_t) 点)。
+- "ulsif"          : uLSIF(Kanamori et al. 2009)で r(x) を直接推定。元観測単位の
+                     CVで (σ, λ) を選び、各foldの基底は学習側targetだけから選ぶ。
 - "oracle"         : データ生成に使った真のガウス分布から r(x) を解析的に計算。
 
 x は先頭列に切片 1 を持つ (n, 1 + n_features) の設計行列を想定する。
@@ -27,6 +26,8 @@ from sklearn.metrics import pairwise_distances
 from sklearn.metrics.pairwise import rbf_kernel
 
 from propensityscore import propensityscore
+from oracle_weight import _gaussian_logpdf as _gaussian_logpdf
+from oracle_weight import gaussian_oracle_metadata, oracle_density_ratio
 from experiment_diagnostics import (
     DEFAULT_MIN_ESS, NUMERICAL_ERRORS, assess_ess, validate_min_ess, weight_diagnostics,
 )
@@ -36,7 +37,8 @@ WEIGHT_METHODS = ("uniform", "propensity", "ulsif", "oracle")
 
 def compute_weights(method, target_x, source_x, means=None, covariances=None,
                     propensity_penalty="l2", propensity_C=1.0,
-                    min_ess=DEFAULT_MIN_ESS, diagnostics=None):
+                    min_ess=DEFAULT_MIN_ESS, diagnostics=None, bootstrap=False,
+                    target_ids=None, source_ids=None):
     """(w_target, w_source) を返す。どちらも 1 次元配列。
 
     propensity_penalty / propensity_C は "propensity" のときの
@@ -49,19 +51,22 @@ def compute_weights(method, target_x, source_x, means=None, covariances=None,
     if method == "propensity":
         return _propensity_odds_weights(target_x, source_x, **ps_kw)
     if method == "ulsif":
-        model = ULSIF(min_ess=min_ess).fit(target_x, source_x)
+        model = ULSIF(min_ess=min_ess).fit(
+            target_x, source_x, bootstrap=bootstrap, target_ids=target_ids, source_ids=source_ids)
         weights = model.density_ratio(source_x)
         if diagnostics is not None:
             diagnostics.update(raw=model.raw_weight_diagnostics_,
                                zero_weight_fallback=model.ratio_zero_fallback_,
-                               ratio_sigma=model.sigma_, ratio_lambda=model.lambda_)
+                               ratio_sigma=model.sigma_, ratio_lambda=model.lambda_,
+                               ratio_cv_policy=model.CV_POLICY)
         return np.ones(target_x.shape[0]), weights
     if method == "oracle":
         if means is None or covariances is None:
             raise ValueError("oracle weights need the true means and covariances")
-        return np.ones(target_x.shape[0]), oracle_density_ratio(
-            source_x[:, 1:], means, covariances
-        )
+        weights = oracle_density_ratio(source_x[:, 1:], means, covariances)
+        if diagnostics is not None:
+            diagnostics["oracle_distribution"] = gaussian_oracle_metadata(means, covariances)
+        return np.ones(target_x.shape[0]), weights
     raise ValueError(f"Unknown weight method: {method!r} (choose from {WEIGHT_METHODS})")
 
 
@@ -72,10 +77,15 @@ def weighted_mean_difference(weight_target, target_y, weight_source, source_y, m
         raise ValueError("Target weights must have positive sum.")
     target_y = np.asarray(target_y).ravel()
     source_y = np.asarray(source_y).ravel()
-    return float(
-        np.sum(weight_target * target_y) / np.sum(weight_target)
-        - np.sum(weight_source * source_y) / np.sum(weight_source)
-    )
+
+    def mean(weights, values):
+        # The common scale cancels in the Hájek mean; keep returned raw weights intact.
+        w = np.asarray(weights, dtype=float).ravel()
+        scaled = w / w.max()
+        probabilities = scaled / scaled.sum()
+        return float(np.dot(probabilities, values))
+
+    return mean(weight_target, target_y) - mean(weight_source, source_y)
 
 
 def effective_sample_size(weight):
@@ -84,13 +94,14 @@ def effective_sample_size(weight):
 
 
 def ipw_estimate(target_x, target_y, source_x, source_y, method="propensity",
-                 min_ess=DEFAULT_MIN_ESS, **kwargs):
+                 min_ess=DEFAULT_MIN_ESS, bootstrap=False, target_ids=None, source_ids=None, **kwargs):
     """Compute source ESS before taking any weighted mean."""
     minimum = validate_min_ess(min_ess)
     metadata, diagnostics = {}, {}
     try:
         wt, ws = compute_weights(method, target_x, source_x, min_ess=minimum,
-                                 diagnostics=metadata, **kwargs)
+                                 diagnostics=metadata, bootstrap=bootstrap,
+                                 target_ids=target_ids, source_ids=source_ids, **kwargs)
         diagnostics = assess_ess(ws, minimum, **metadata)
         estimate = weighted_mean_difference(wt, target_y, ws, source_y, min_ess=minimum)
         return dict(estimate=estimate, ess=diagnostics["full"]["ess"],
@@ -110,49 +121,29 @@ def _propensity_odds_weights(target_x, source_x, **ps_kw):
     return np.ones(target_x.shape[0]), ps_source / (1.0 - ps_source)
 
 
-# -------------------------------------------------------------------- oracle
-def _gaussian_logpdf(x, mean, cov):
-    d = x.shape[1]
-    chol = np.linalg.cholesky(cov)
-    diff = np.linalg.solve(chol, (x - mean).T)  # (d, n)
-    maha = np.sum(diff**2, axis=0)
-    logdet = 2.0 * np.sum(np.log(np.diag(chol)))
-    return -0.5 * (maha + logdet + d * np.log(2.0 * np.pi))
-
-
-def oracle_density_ratio(x, means, covariances):
-    """真のガウス分布に基づく r(x) = N(x; μ_t, Σ_t) / N(x; μ_s, Σ_s)。x は切片なし。"""
-    log_r = _gaussian_logpdf(x, means["target"], covariances["target"]) - _gaussian_logpdf(
-        x, means["source"], covariances["source"]
-    )
-    return np.exp(log_r)
-
-
 # --------------------------------------------------------------------- uLSIF
 class ULSIF:
-    """IW-Learn の ImportaceWeightLearn._weight と同じ uLSIF 密度比推定。"""
+    """元観測単位のCVと学習fold内の基底を使うuLSIF密度比推定。"""
 
+    SIGMA_ANCHOR = "all_off_diagonal_distances"
+    CV_POLICY = "observation_groups_train_target_basis_v1"
     SIGMA_FACTORS = (0.1, 0.15, 0.2, 0.3, 0.5, 0.7, 1.0, 1.4, 2.0, 3.0)
     LAMBDA_GRID = (1e-4, 1e-3, 1e-2, 3e-2, 1e-1, 3e-1, 1.0)
     CV_FOLDS = 5
+    CV_SEED = 12345
     MAX_BASIS = 100  # Kanamori et al. 2009 §2.5: b = min(100, n_te)
 
     def __init__(self, min_ess=DEFAULT_MIN_ESS):
         self.min_ess = validate_min_ess(min_ess)
 
-    def fit(self, target_x, source_x):
-        n_target = target_x.shape[0]
+    def fit(self, target_x, source_x, *, bootstrap=False, target_ids=None, source_ids=None):
         n_source = source_x.shape[0]
         sigma_med = self._median_pairwise_distance(np.vstack((target_x, source_x)))
 
-        # 基底点: target から非復元で min(100, n_t) 点(n_t <= 100 なら乱数を消費しない)
-        if n_target > self.MAX_BASIS:
-            idx = np.random.choice(n_target, size=self.MAX_BASIS, replace=False)
-            x_basis = target_x[np.sort(idx)]
-        else:
-            x_basis = target_x
-
-        sigma, lambda_reg = self._select_hyperparams(target_x, source_x, x_basis, sigma_med)
+        # 最終学習は全target、CVは各学習foldから別々に基底を選ぶ。
+        x_basis = self._select_basis(target_x)
+        sigma, lambda_reg = self._select_hyperparams(
+            target_x, source_x, x_basis, sigma_med, target_ids=target_ids, source_ids=source_ids)
 
         gamma = 1.0 / (2 * sigma**2)
         K_s = rbf_kernel(source_x, x_basis, gamma=gamma)
@@ -174,33 +165,70 @@ class ULSIF:
             return np.ones(x.shape[0])
         return r
 
-    def _select_hyperparams(self, target_x, source_x, x_basis, sigma_med):
-        """J 規準の 5-fold CV で (σ, λ) を選ぶ。fold 分割は固定シードでグローバル RNG を消費しない。"""
-        rng = np.random.default_rng(12345)
-        n_t, n_s = target_x.shape[0], source_x.shape[0]
-        folds_t = np.array_split(rng.permutation(n_t), self.CV_FOLDS)
-        folds_s = np.array_split(rng.permutation(n_s), self.CV_FOLDS)
+    def _select_basis(self, target_x, rng=None):
+        if len(target_x) <= self.MAX_BASIS:
+            return target_x
+        generator = np.random if rng is None else rng
+        idx = generator.choice(len(target_x), size=self.MAX_BASIS, replace=False)
+        return target_x[np.sort(idx)]
+
+    @staticmethod
+    def _observation_groups(x, ids):
+        if ids is None:
+            # IDを持たない配列呼出しでは同一X行を保守的に同じgroupとする。
+            return np.unique(x, axis=0, return_inverse=True)[1]
+        ids = np.asarray(ids)
+        if ids.ndim != 1 or len(ids) != len(x):
+            raise ValueError("Observation IDs must be a vector with one ID per row.")
+        if ids.dtype.kind in "fc" and not np.isfinite(ids).all():
+            raise ValueError("Observation IDs must be finite.")
+        return np.unique(ids, return_inverse=True)[1]
+
+    def _make_cv_folds(self, target_x, source_x, *, target_ids=None, source_ids=None):
+        groups_t = self._observation_groups(target_x, target_ids)
+        groups_s = self._observation_groups(source_x, source_ids)
+        unique_t, unique_s = np.unique(groups_t), np.unique(groups_s)
+        n_folds = min(self.CV_FOLDS, len(unique_t), len(unique_s))
+        if n_folds < 2:
+            raise ValueError("uLSIF CV requires at least two observation groups in each domain.")
+        rng = np.random.default_rng(self.CV_SEED)
+        folds_t = np.array_split(rng.permutation(unique_t), n_folds)
+        folds_s = np.array_split(rng.permutation(unique_s), n_folds)
+        folds = []
+        for held_t, held_s in zip(folds_t, folds_s):
+            valid_t = np.isin(groups_t, held_t)
+            valid_s = np.isin(groups_s, held_s)
+            folds.append((np.flatnonzero(~valid_t), np.flatnonzero(valid_t),
+                          np.flatnonzero(~valid_s), np.flatnonzero(valid_s)))
+        return folds
+
+    def _select_hyperparams(self, target_x, source_x, x_basis, sigma_med, *,
+                            target_ids=None, source_ids=None):
+        """Grouped J-score CV。x_basis引数は既存呼出しとの互換性のため残す。"""
+        folds = self._make_cv_folds(
+            target_x, source_x, target_ids=target_ids, source_ids=source_ids)
+        rng = np.random.default_rng(self.CV_SEED + 1)
+        bases = [self._select_basis(target_x[tr_t], rng=rng) for tr_t, _, _, _ in folds]
 
         best = (np.inf, sigma_med, 1e-2)
         for fac in self.SIGMA_FACTORS:
             sig = fac * sigma_med
             gamma = 1.0 / (2 * sig**2)
-            K_s = rbf_kernel(source_x, x_basis, gamma=gamma)
-            K_t = rbf_kernel(target_x, x_basis, gamma=gamma)
-            b = K_s.shape[1]
-            for lam in self.LAMBDA_GRID:
-                score = 0.0
-                for k in range(self.CV_FOLDS):
-                    tr_s = np.setdiff1d(np.arange(n_s), folds_s[k])
-                    tr_t = np.setdiff1d(np.arange(n_t), folds_t[k])
-                    H = K_s[tr_s].T @ K_s[tr_s] / len(tr_s)
-                    h = K_t[tr_t].mean(axis=0)
+            scores = np.zeros(len(self.LAMBDA_GRID))
+            for (tr_t, va_t, tr_s, va_s), basis in zip(folds, bases):
+                K_s = rbf_kernel(source_x, basis, gamma=gamma)
+                K_t = rbf_kernel(target_x, basis, gamma=gamma)
+                b = len(basis)
+                H = K_s[tr_s].T @ K_s[tr_s] / len(tr_s)
+                h = K_t[tr_t].mean(axis=0)
+                for index, lam in enumerate(self.LAMBDA_GRID):
                     alpha = np.linalg.solve(H + lam * np.eye(b), h)
-                    w_s = np.maximum(K_s[folds_s[k]] @ alpha, 0)
-                    w_t = np.maximum(K_t[folds_t[k]] @ alpha, 0)
-                    score += 0.5 * np.mean(w_s**2) - np.mean(w_t)
-                if score / self.CV_FOLDS < best[0]:
-                    best = (score / self.CV_FOLDS, sig, lam)
+                    w_s = np.maximum(K_s[va_s] @ alpha, 0)
+                    w_t = np.maximum(K_t[va_t] @ alpha, 0)
+                    scores[index] += 0.5 * np.mean(w_s**2) - np.mean(w_t)
+            for lam, score in zip(self.LAMBDA_GRID, scores / len(folds)):
+                if score < best[0]:
+                    best = (score, sig, lam)
         return best[1], best[2]
 
     @staticmethod

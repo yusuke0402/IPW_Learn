@@ -48,10 +48,11 @@ def _weight_kwargs(config):
 
 
 def _single_estimate(weight_method, target_x, target_y, source_x, source_y,
-                     means, covariances, wkw):
+                     means, covariances, wkw, *, target_ids=None, source_ids=None):
     """重みの計算 → Hájek 型の重み付き平均差を 1 回行う。"""
     result = ipw_estimate(target_x, target_y, source_x, source_y,
-                          method=weight_method, means=means, covariances=covariances, **wkw)
+                          method=weight_method, means=means, covariances=covariances,
+                          target_ids=target_ids, source_ids=source_ids, **wkw)
     return result["estimate"], result["source_weights"]
 
 
@@ -66,10 +67,14 @@ def _run_one_trial(i, config, weight_method, n_bootstraps, wkw):
     target_x, target_y = data.target_x, data.target_y
     source_x, source_y = data.source_x, data.source_y
     run = run_weighted_bootstrap(
-        lambda tx, ty, sx, sy: ipw_estimate(
+        lambda tx, ty, sx, sy, **ids: ipw_estimate(
             tx, ty, sx, sy, method=weight_method, means=data.means,
-            covariances=data.covariances, **wkw),
+            covariances=data.covariances, **ids, **wkw),
         target_x, target_y, source_x, source_y, n_bootstraps, i,
+        bootstrap_estimator=lambda tx, ty, sx, sy, **ids: ipw_estimate(
+            tx, ty, sx, sy, method=weight_method, means=data.means,
+            covariances=data.covariances, bootstrap=True, **ids, **wkw),
+        pass_observation_ids=True,
         min_ess=wkw.get("min_ess", DEFAULT_MIN_ESS),
         max_failure_rate=config["hyperparameters"].get(
             "max_bootstrap_failure_rate", DEFAULT_MAX_BOOTSTRAP_FAILURE_RATE))

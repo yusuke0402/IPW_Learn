@@ -1,6 +1,6 @@
 """ESS-screened full-pipeline bootstrap and explicit failure reporting.
 
-Kept identical in AIPW-Learn and IPW_Learn; no cross-repository imports.
+Estimators may opt in to receiving original observation IDs in every fit.
 """
 
 import json
@@ -30,7 +30,10 @@ def run_weighted_bootstrap(
     estimate_keys=("estimate",),
     max_failure_rate=DEFAULT_MAX_BOOTSTRAP_FAILURE_RATE,
     min_ess=DEFAULT_MIN_ESS,
+    bootstrap_estimator=None,
+    pass_observation_ids=False,
 ):
+    """Resample rows and optionally forward their original IDs for grouped model CV."""
     min_ess = validate_min_ess(min_ess)
     if not isinstance(requested, (int, np.integer)) or requested < 0:
         raise ValueError("Bootstrap count must be a nonnegative integer.")
@@ -38,8 +41,10 @@ def run_weighted_bootstrap(
     bootstrap_interval(0, [], requested=requested, max_failure_rate=max_failure_rate)
     errors, diagnostics, values = [], [], {key: [] for key in estimate_keys}
 
-    def fit(a, b, c, d):
-        result = estimator(a, b, c, d)
+    def fit(a, b, c, d, *, bootstrap=False, target_ids=None, source_ids=None):
+        callback = bootstrap_estimator if bootstrap and bootstrap_estimator is not None else estimator
+        ids = dict(target_ids=target_ids, source_ids=source_ids) if pass_observation_ids else {}
+        result = callback(a, b, c, d, **ids)
         if not all(np.isfinite(result[key]) for key in estimate_keys):
             exc = ValueError("Point estimate must be finite.")
             exc.ess_diagnostics = result.get("ess_diagnostics", {})
@@ -48,7 +53,7 @@ def run_weighted_bootstrap(
 
     point, point_error, point_type, point_diagnostics = {}, "", "", {}
     try:
-        point = fit(tx, ty, sx, sy)
+        point = fit(tx, ty, sx, sy, target_ids=np.arange(len(tx)), source_ids=np.arange(len(sx)))
         point_diagnostics = point.get("ess_diagnostics", {})
     except NUMERICAL_ERRORS as exc:
         point_error, point_type = error_message(exc), error_category(exc)
@@ -59,7 +64,8 @@ def run_weighted_bootstrap(
         ti = rng.choice(len(tx), size=len(tx), replace=True)
         si = rng.choice(len(sx), size=len(sx), replace=True)
         try:
-            result = fit(tx[ti], ty[ti], sx[si], sy[si])
+            result = fit(tx[ti], ty[ti], sx[si], sy[si], bootstrap=True,
+                         target_ids=ti, source_ids=si)
             diag = result.get("ess_diagnostics", {})
             for key in estimate_keys:
                 values[key].append(result[key])

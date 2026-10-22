@@ -31,3 +31,36 @@ uLSIF の密度比ハイパーパラメータ選択用 CV は、まだ推定さ�
 x2 の平均、各群の共分散、アウトカムの生成式はシナリオ２と共通です。
 `configs/config.yaml` の `n_features: 2` と `data_scenario_id: "data_scenario_4"` で選択でき、
 非線形 γ 実験では `--scenarios data_scenario_4` を指定できます。既定の一括実行にも含まれます。
+
+## uLSIF の CV（2026-10-22）
+
+元標本とbootstrapの両方で、同じ元観測の複製を同じCV foldへまとめます。
+CVの基底中心は各foldの学習側targetだけから選び、候補間で固定します。
+元観測IDを省略した配列APIでは、同一の共変量行を同じgroupとして扱います。
+group数が少なければfold数を減らし、いずれかの群が２group未満なら計算失敗として記録します。
+σ候補・距離中央値のアンカー・λ候補・予測値の非負化・ESS判定は維持します。
+bootstrapでもσ・λを選び直します。これはロジスティック重みやoracle重みを変更しません。
+
+非線形実験の `run_meta.json` には `ratio_cv_policy` を保存します。
+CV修正前の結果への追記はコードと設定の照合で拒否するため、新しい出力先を指定してください。
+
+## 真の密度比によるIPW参照
+
+`hyperparameters.weight_method: "oracle"` を指定すると、`data.py` が読み込んだ
+真の平均・共分散から `p_target(x) / p_source(x)` を計算します。通常の設定実験は
+２次元（SC1〜SC4）と10次元（SC1〜SC3）で利用できます。密度計算から切片列を除外し、
+密度比をクリップせず、IPWの平均差で自己正規化します。σ・λの推定やCVはありません。
+平均の計算内だけ最大重みで共通スケールを相殺し、有限の大きな重みによる和のoverflowを防ぎます。
+返す重み・ESS診断・最大重みには、生の密度比を使います。
+bootstrapでも真分布のパラメータを固定したまま、再抽出したsource行の密度比を評価します。
+
+```bash
+uv run scripts/nonlinear_gamma_ipw.py --weight-method oracle --scenarios data_scenario_4 \
+  --target-n 50 --source-ns 20 100 500 --gammas 0 0.5 --trials 200 --bootstraps 200
+```
+
+非線形実験のCLIは２次元用です。APIの `weight.oracle_density_ratio(x, means, covariances)` は
+切片なしの配列を受け取ります。真分布は試行の診断と、非線形実験の `run_meta.json` に保存し、
+再開時には真分布も照合します。ESSとbootstrap失敗率の判定は他の重み方式と共通です。
+非対称・非正定値・非有限の共分散や次元不一致はエラーとし、密度比のoverflowも計算失敗として記録します。
+underflowによる０はそのままESS判定へ渡し、一様重みに置き換えません。
