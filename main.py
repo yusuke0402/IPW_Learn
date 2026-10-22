@@ -43,6 +43,9 @@ def _weight_kwargs(config):
     return {
         "propensity_penalty": hp.get("propensity_penalty", "l2"),
         "propensity_C": hp.get("propensity_C", 1.0),
+        "propensity_cv": hp.get("propensity_cv", True),
+        "propensity_C_grid": hp.get("propensity_C_grid", None),
+        "propensity_cv_folds": hp.get("propensity_cv_folds", 5),
         "min_ess": hp.get("min_ess", DEFAULT_MIN_ESS),
     }
 

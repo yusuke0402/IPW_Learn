@@ -74,7 +74,8 @@ def compact_ess_diagnostics(diagnostics):
     """Small per-replicate record, including folds even when fitting fails."""
     full = diagnostics.get("full") or {}
     folds = diagnostics.get("cv_folds", [])
-    return dict(ess=full.get("ess"), positive_weights=full.get("positive_weights"),
+    return dict(propensity_C=diagnostics.get("propensity_C"),
+                ess=full.get("ess"), positive_weights=full.get("positive_weights"),
                 fit_context=diagnostics.get("fit_context", "original"),
                 ess_threshold_applied=diagnostics.get("ess_threshold_applied", True),
                 min_positive_weights=diagnostics.get("min_positive_weights"),

@@ -217,8 +217,11 @@ def main():
     parser.add_argument("--scenarios", type=str, nargs="+", choices=list(MEANS),
                         default=list(MEANS))
     parser.add_argument("--weight-method", choices=WEIGHT_METHODS, default="propensity")
-    parser.add_argument("--propensity-penalty", choices=["l2", "none"], default="l2")
-    parser.add_argument("--propensity-C", type=float, default=1.0)
+    parser.add_argument("--propensity-penalty", choices=["l2", "none"], default=None)
+    parser.add_argument("--propensity-C", type=float, default=None)
+    parser.add_argument("--propensity-cv", action=argparse.BooleanOptionalAction, default=None)
+    parser.add_argument("--propensity-C-grid", type=float, nargs="+", default=None)
+    parser.add_argument("--propensity-cv-folds", type=int, default=None)
     add_layout_args(parser)
     parser.add_argument("--verbose", type=int, default=0)
     parser.add_argument("--smoke", action="store_true")
@@ -226,6 +229,10 @@ def main():
     import yaml
     config = yaml.safe_load(args.config.read_text(encoding="utf-8")) or {}
     hp = config.get("hyperparameters", {})
+    args.propensity_penalty = (args.propensity_penalty if args.propensity_penalty is not None
+                               else hp.get("propensity_penalty", "l2"))
+    args.propensity_C = (args.propensity_C if args.propensity_C is not None
+                        else hp.get("propensity_C", 1.0))
     args.min_ess = validate_min_ess(args.min_ess if args.min_ess is not None else hp.get("min_ess", DEFAULT_MIN_ESS))
     args.max_bootstrap_failure_rate = (args.max_bootstrap_failure_rate if args.max_bootstrap_failure_rate is not None
                                        else hp.get("max_bootstrap_failure_rate", DEFAULT_MAX_BOOTSTRAP_FAILURE_RATE))
@@ -241,6 +248,11 @@ def main():
         n_trials, n_boot = 4, 20
     wkw = {"propensity_penalty": args.propensity_penalty, "propensity_C": args.propensity_C,
            "min_ess": args.min_ess}
+    wkw.update(
+        propensity_cv=args.propensity_cv if args.propensity_cv is not None else hp.get("propensity_cv", True),
+        propensity_C_grid=args.propensity_C_grid if args.propensity_C_grid is not None else hp.get("propensity_C_grid"),
+        propensity_cv_folds=args.propensity_cv_folds if args.propensity_cv_folds is not None else hp.get("propensity_cv_folds", 5),
+    )
 
     weight_tag = args.weight_method
     if args.weight_method.startswith("propensity"):

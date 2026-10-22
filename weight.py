@@ -12,8 +12,8 @@ target 側は重みなし(w_t = 1)、source 側に密度比
 - "uniform"        : w_s = 1。輸送なしの単純平均差(ベースライン)。
 - "propensity"     : ロジスティック回帰の傾向スコア e(x)=P(R=1|x) のオッズ
                      w_s = e/(1-e)。密度比 r(x) に比例する(定数倍は自己正規化で消える)。
-                     罰則は hyperparameters.propensity_penalty("l2" = sklearn 既定、
-                     強さ propensity_C、既定 / "none" = 最尤)で選ぶ。
+                     L2の強さCは所属群の層化CVで選ぶ。CV無効時は propensity_C、
+                     propensity_penalty="none" のときは罰則なしの最尤推定を使う。
 - "ulsif"          : uLSIF(Kanamori et al. 2009)で r(x) を直接推定。元観測単位の
                      CVで (σ, λ) を選び、各foldの基底は学習側targetだけから選ぶ。
 - "oracle"         : データ生成に使った真のガウス分布から r(x) を解析的に計算。
@@ -37,7 +37,8 @@ WEIGHT_METHODS = ("uniform", "propensity", "ulsif", "oracle")
 
 def compute_weights(method, target_x, source_x, means=None, covariances=None,
                     propensity_penalty="l2", propensity_C=1.0,
-                    min_ess=DEFAULT_MIN_ESS, diagnostics=None, bootstrap=False,
+                    min_ess=DEFAULT_MIN_ESS, diagnostics=None,
+                    propensity_cv=True, propensity_C_grid=None, propensity_cv_folds=5, bootstrap=False,
                     target_ids=None, source_ids=None):
     """(w_target, w_source) を返す。どちらも 1 次元配列。
 
@@ -45,11 +46,16 @@ def compute_weights(method, target_x, source_x, means=None, covariances=None,
     ロジスティック回帰の罰則("l2" = sklearn 既定の L2(既定)、"none" = 最尤)。
     """
     min_ess = validate_min_ess(min_ess)
-    ps_kw = {"penalty": propensity_penalty, "C": propensity_C}
+    ps_selection = {}
+    ps_kw = dict(penalty=propensity_penalty, C=propensity_C, cv=propensity_cv,
+                 C_grid=propensity_C_grid, cv_folds=propensity_cv_folds, diagnostics=ps_selection)
     if method == "uniform":
         return np.ones(target_x.shape[0]), np.ones(source_x.shape[0])
     if method == "propensity":
-        return _propensity_odds_weights(target_x, source_x, **ps_kw)
+        result = _propensity_odds_weights(target_x, source_x, **ps_kw)
+        if diagnostics is not None:
+            diagnostics["propensity_selection"] = ps_selection
+        return result
     if method == "ulsif":
         model = ULSIF(min_ess=min_ess).fit(
             target_x, source_x, bootstrap=bootstrap, target_ids=target_ids, source_ids=source_ids)
@@ -95,7 +101,8 @@ def effective_sample_size(weight):
 
 
 def ipw_estimate(target_x, target_y, source_x, source_y, method="propensity",
-                 min_ess=DEFAULT_MIN_ESS, bootstrap=False, target_ids=None, source_ids=None, **kwargs):
+                 min_ess=DEFAULT_MIN_ESS, bootstrap=False,
+                 target_ids=None, source_ids=None, **kwargs):
     """Compute source ESS before taking any weighted mean."""
     minimum = validate_min_ess(min_ess)
     metadata, diagnostics = {}, {}
@@ -103,11 +110,12 @@ def ipw_estimate(target_x, target_y, source_x, source_y, method="propensity",
         wt, ws = compute_weights(method, target_x, source_x, min_ess=minimum,
                                  diagnostics=metadata, bootstrap=bootstrap,
                                  target_ids=target_ids, source_ids=source_ids, **kwargs)
+        ps_selection = metadata.pop("propensity_selection", {})
         diagnostics = assess_ess(ws, minimum, bootstrap=bootstrap,
-            min_positive_weights=source_x.shape[1], **metadata)
+            min_positive_weights=source_x.shape[1], propensity_C=ps_selection.get("C"), **metadata)
         estimate = weighted_mean_difference(wt, target_y, ws, source_y, min_ess=minimum,
             bootstrap=bootstrap, min_positive_weights=source_x.shape[1])
-        return dict(estimate=estimate, ess=diagnostics["full"]["ess"],
+        return dict(estimate=estimate, propensity_selection=ps_selection, ess=diagnostics["full"]["ess"],
                     max_weight=float(np.max(ws)), source_weights=ws,
                     ess_diagnostics=diagnostics)
     except NUMERICAL_ERRORS as exc:

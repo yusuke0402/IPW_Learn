@@ -19,9 +19,12 @@ hyperparameters:
     n_features: 10
     # 重みの種類: uniform / propensity / ulsif / oracle (weight.py 参照)
     weight_method: "propensity"
-    # propensity 系のロジスティック回帰の罰則: "l2"(sklearn 既定、強さ propensity_C。PSS-Learn と同じ) / "none"(最尤)
+    # Logistic membership: stratified CV chooses C for "l2"; "none" disables the penalty.
     propensity_penalty: "l2"
     propensity_C: 1.0
+    propensity_cv: true
+    propensity_C_grid: null  # 1e-4..1e4, 17 log-spaced values
+    propensity_cv_folds: 5
 
 dataset:
     target_number: 20

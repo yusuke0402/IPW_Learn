@@ -32,6 +32,12 @@ uLSIF の密度比ハイパーパラメータ選択用 CV は、まだ推定さ�
 層別化の対象とはせず、その手順は維持します。IWL の回帰用 CV は正の重みによる
 層別分割を行い、正の重みが少なければ fold 数を減らします。
 
+## Logistic重みのCV選択（2026-10-17）
+
+logistic重みはIWL・IPW・AIPW-SNで同じ実装を使います。既定では現在／過去の所属群で層化した5-fold CVのlog lossを最小化するCを選択します。候補は1e-4〜1e4の対数等間隔17点、分割seedは2024です。Newton法（newton-cholesky）、tol=1e-8、最大1000反復、確率クリップ1e-12に統一しています。アウトカム・真の効果・ESSでCを選びません。
+
+設定は propensity_cv、propensity_C_grid、propensity_cv_folds。CLIは --propensity-cv / --no-propensity-cv、--propensity-C-grid、--propensity-cv-folds。CVを無効にすると設定ファイルの propensity_C（既定1）を使い、CLIで指定した値を優先します。bootstrapでもCを再選択します。重み確定後、元標本はESS、bootstrapは正の重み人数で判定します。CVは重みモデルの調整であり、推定量全体のcross-fittingではありません。bootstrapの重複標本は通常のCV分割で扱います。
+
 ## ２次元のシナリオ４
 
 `data_scenario_4` はシナリオ２の target trial と source trial の x1 の平均だけを
