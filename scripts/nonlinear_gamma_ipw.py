@@ -66,6 +66,7 @@ MEANS = {
     "data_scenario_1": {"target": [0.0, 1.0], "source": [0.0, 0.0]},
     "data_scenario_2": {"target": [2.0, 3.0], "source": [0.0, 0.0]},
     "data_scenario_3": {"target": [0.0, 1.0], "source": [0.0, 0.0]},
+    "data_scenario_4": {"target": [0.0, 3.0], "source": [2.0, 0.0]},
 }
 COVS = {
     "data_scenario_1": {
@@ -79,6 +80,10 @@ COVS = {
     "data_scenario_3": {
         "target": [[1.5, -0.7], [-0.7, 1.5]],
         "source": [[3.5, 0.7], [0.7, 3.5]],
+    },
+    "data_scenario_4": {
+        "target": [[1.5, -0.7], [-0.7, 1.5]],
+        "source": [[1.7, 0.7], [0.7, 1.7]],
     },
 }
 COEFFICIENT = np.array([1.5, -2.0, 0.8])  # [intercept, x1, x2]
@@ -205,8 +210,8 @@ def main():
     parser.add_argument("--target-n", type=int, default=DEFAULT_TARGET_N)
     parser.add_argument("--source-ns", type=int, nargs="+",
                         default=[20, 50, 100, 200, 500])
-    parser.add_argument("--scenarios", type=str, nargs="+",
-                        default=["data_scenario_1", "data_scenario_2", "data_scenario_3"])
+    parser.add_argument("--scenarios", type=str, nargs="+", choices=list(MEANS),
+                        default=list(MEANS))
     parser.add_argument("--weight-method", choices=WEIGHT_METHODS, default="propensity")
     parser.add_argument("--propensity-penalty", choices=["l2", "none"], default="l2")
     parser.add_argument("--propensity-C", type=float, default=1.0)
@@ -248,7 +253,7 @@ def main():
     # scenario 2(シフト最大)を先に回す(IW-Learn と同じ順序)
     conditions = [
         (sc, sn, g)
-        for sc in ["data_scenario_2", "data_scenario_1", "data_scenario_3"]
+        for sc in ["data_scenario_2", "data_scenario_1", "data_scenario_3", "data_scenario_4"]
         if sc in scenarios
         for g in gammas
         for sn in source_ns

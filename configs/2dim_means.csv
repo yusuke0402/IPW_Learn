@@ -5,3 +5,5 @@ data_scenario_2,target,2,3
 data_scenario_2,source,0,0
 data_scenario_3,target,0,1
 data_scenario_3,source,0,0
+data_scenario_4,target,0,3
+data_scenario_4,source,2,0

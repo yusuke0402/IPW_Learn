@@ -23,3 +23,11 @@ ESS の設定・bootstrap 失敗率の基準・ソースコードが異なる出
 uLSIF の密度比ハイパーパラメータ選択用 CV は、まだ推定されていない重みによる
 層別化の対象とはせず、その手順は維持します。IWL の回帰用 CV は正の重みによる
 層別分割を行い、正の重みが少なければ fold 数を減らします。
+
+## ２次元のシナリオ４
+
+`data_scenario_4` はシナリオ２の target trial と source trial の x1 の平均だけを
+入れ替えた設定です。平均ベクトル `(x1, x2)` は target が `(0, 3)`、source が `(2, 0)`。
+x2 の平均、各群の共分散、アウトカムの生成式はシナリオ２と共通です。
+`configs/config.yaml` の `n_features: 2` と `data_scenario_id: "data_scenario_4"` で選択でき、
+非線形 γ 実験では `--scenarios data_scenario_4` を指定できます。既定の一括実行にも含まれます。
