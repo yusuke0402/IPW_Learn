@@ -78,3 +78,8 @@ uv run scripts/nonlinear_gamma_ipw.py --weight-method oracle --scenarios data_sc
 再開時には真分布も照合します。ESSとbootstrap失敗率の判定は他の重み方式と共通です。
 非対称・非正定値・非有限の共分散や次元不一致はエラーとし、密度比のoverflowも計算失敗として記録します。
 underflowによる０はそのままESS判定へ渡し、一様重みに置き換えません。
+
+## 2026-10-22 パイロット実験
+
+指定条件の実験を、このリポジトリ単独で実行・停止・再開・集計できます。
+[別マシン用の実行手順](experiments/pilot_20261022/README.md)を参照してください。
