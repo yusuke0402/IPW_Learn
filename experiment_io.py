@@ -39,6 +39,8 @@ def _json_value(value):
 
 def write_run_meta(out_dir, root, **meta):
     out_dir, root = Path(out_dir), Path(root)
+    meta.update(bootstrap_ess_threshold_applied=False,
+                bootstrap_min_positive_weights=3, ess_scope="original_sample_only")
     code = {
         str(path.relative_to(root)): hashlib.sha256(path.read_bytes()).hexdigest()
         for path in sorted(
@@ -56,7 +58,7 @@ def write_run_meta(out_dir, root, **meta):
         if key not in ("n_trials", "scenarios", "source_ns", "gammas")
     }
     contract.update(
-        ess_contract_version=1,
+        ess_contract_version=2,
         source_sha256=code,
         versions=versions,
         python=platform.python_version(),

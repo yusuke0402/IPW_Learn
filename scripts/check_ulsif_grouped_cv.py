@@ -156,9 +156,9 @@ class GroupedCVChecks(unittest.TestCase):
                 with self.subTest(bootstrap=bootstrap, basis_cap=cap, with_ids=with_ids):
                     ids = dict(target_ids=ti, source_ids=si) if with_ids else {}
                     ipw, aipw = ULSIF(), AIPW()
-                    # Compare CV with identical grids, preserving this repository's candidate settings.
-                    aipw.RATIO_SIGMA_FACTORS = ipw.SIGMA_FACTORS
-                    aipw.RATIO_LAMBDA_GRID = ipw.LAMBDA_GRID
+                    # Compare defaults directly so a candidate-grid mismatch cannot be hidden.
+                    self.assertEqual(ipw.SIGMA_FACTORS, aipw.RATIO_SIGMA_FACTORS)
+                    self.assertEqual(ipw.LAMBDA_GRID, aipw.RATIO_LAMBDA_GRID)
                     ipw.MAX_BASIS = aipw.RATIO_MAX_BASIS = cap
                     np.random.seed(79)
                     ipw.fit(tx, sx, bootstrap=bootstrap, **ids)

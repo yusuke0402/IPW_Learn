@@ -31,7 +31,7 @@ class Result:
             "estimate_95ci_lower": "method_ci_lower", "estimate_95ci_upper": "method_ci_upper",
             "ci_error": "method_ci_error", "boot_n": "method_boot_n"})
         frame = frame.rename(columns={c: "method_" + c for c in (
-            "point_error_type", "boot_requested", "boot_failed", "boot_failed_ESS", "ess",
+            "point_error_type", "boot_requested", "boot_failed", "boot_failed_ESS", "boot_failed_positive_weights", "ess",
             "min_ess", "max_bootstrap_failure_rate")})
         stats = summarize_trials(frame, "method", config["dataset"]["true_value"])
         stats.update(std_dev=stats["sd"], mse=stats["rmse"] ** 2,
@@ -56,7 +56,9 @@ class Result:
                 "min_ess": config["hyperparameters"].get("min_ess", DEFAULT_MIN_ESS),
                 "max_bootstrap_failure_rate": config["hyperparameters"].get(
                     "max_bootstrap_failure_rate", DEFAULT_MAX_BOOTSTRAP_FAILURE_RATE),
-                "scope": "historical sample in point and each full-pipeline bootstrap fit",
+                "scope": "ESS in original sample only; positive-weight rows in bootstrap",
+                "bootstrap_ess_threshold_applied": False,
+                "bootstrap_min_positive_weights": config["hyperparameters"]["n_features"] + 1,
             },
             "notes": "Automated experiment run",
         }

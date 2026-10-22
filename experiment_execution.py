@@ -124,6 +124,7 @@ def diagnostic_columns(run, prefix=""):
             boot_n=run["boot_n"],
             boot_failed=len(errors),
             boot_failed_ESS=sum(e["type"] == "ESS" for e in errors),
+            boot_failed_positive_weights=sum(e["type"] == "positive_weights" for e in errors),
             boot_failure_rate=first_interval["failure_rate"],
             max_bootstrap_failure_rate=run["max_bootstrap_failure_rate"],
             boot_errors=json.dumps(errors, ensure_ascii=False),
@@ -214,6 +215,8 @@ def summarize_trials(df, prefix, true_value, diagnostics_prefix=None):
         bootstrap_requested=int(boot_requested),
         bootstrap_failed=boot_failed,
         bootstrap_failed_ESS=boot_ess,
+        bootstrap_failed_positive_weights=int(df.get(
+            f"{dp}_boot_failed_positive_weights", pd.Series(0, index=df.index)).sum()),
         bootstrap_failure_rate=float(boot_failed / boot_requested)
         if boot_requested
         else 0.0,

@@ -10,6 +10,10 @@ class InsufficientESSError(ValueError):
     """The historical sample lacks the prespecified effective sample size."""
 
 
+class InsufficientPositiveWeightsError(ValueError):
+    """A bootstrap sample has fewer positive-weight rows than coefficients."""
+
+
 def validate_min_ess(value):
     value = float(value)
     if not np.isfinite(value) or value < 0:
@@ -17,18 +21,29 @@ def validate_min_ess(value):
     return value
 
 
-def assess_ess(weights, min_ess=DEFAULT_MIN_ESS, **metadata):
-    """Screen historical weights and retain their measured diagnostics on failure."""
+def assess_ess(weights, min_ess=DEFAULT_MIN_ESS, *, bootstrap=False,
+               min_positive_weights=1, **metadata):
+    """Original ESS gate; bootstrap positive-row gate (a shared study rule)."""
     minimum = validate_min_ess(min_ess)
+    if not isinstance(min_positive_weights, (int, np.integer)) or min_positive_weights < 1:
+        raise ValueError("min_positive_weights must be a positive integer.")
     full = weight_diagnostics(weights)
-    diagnostics = dict(min_ess=minimum, full=full, cv_folds=[],
-                       cv_min_train_ess=None, eligible=full["ess"] >= minimum,
-                       **metadata)
-    if not diagnostics["eligible"] or full["positive_weights"] == 0:
-        diagnostics.update(eligible=False, failure_scope="full_sample")
-        exc = InsufficientESSError(
-            f"Historical ESS={full['ess']:.6g} < minimum={minimum:g}, "
-            f"or no positive weight ({full['positive_weights']}/{full['n']}).")
+    eligible = (full["positive_weights"] >= min_positive_weights if bootstrap
+                else full["ess"] >= minimum and full["positive_weights"] > 0)
+    diagnostics = dict(min_ess=minimum, full=full, cv_folds=[], cv_min_train_ess=None,
+        eligible=bool(eligible), fit_context="bootstrap" if bootstrap else "original",
+        ess_threshold_applied=not bootstrap,
+        min_positive_weights=int(min_positive_weights) if bootstrap else None, **metadata)
+    if not eligible:
+        diagnostics["failure_scope"] = "full_sample"
+        if bootstrap:
+            exc = InsufficientPositiveWeightsError(
+                f"Bootstrap requires {min_positive_weights} positive-weight rows; "
+                f"got {full['positive_weights']} (ESS={full['ess']:.12g}, recorded only).")
+        else:
+            exc = InsufficientESSError(
+                f"Historical ESS={full['ess']:.12g} < minimum={minimum:g}, "
+                f"or no positive weight ({full['positive_weights']}/{full['n']}).")
         exc.ess_diagnostics = diagnostics
         raise exc
     return diagnostics
@@ -60,6 +75,9 @@ def compact_ess_diagnostics(diagnostics):
     full = diagnostics.get("full") or {}
     folds = diagnostics.get("cv_folds", [])
     return dict(ess=full.get("ess"), positive_weights=full.get("positive_weights"),
+                fit_context=diagnostics.get("fit_context", "original"),
+                ess_threshold_applied=diagnostics.get("ess_threshold_applied", True),
+                min_positive_weights=diagnostics.get("min_positive_weights"),
                 max_normalized_weight=full.get("max_normalized_weight"),
                 min_ess=diagnostics.get("min_ess"), eligible=diagnostics.get("eligible"),
                 cv_split=diagnostics.get("cv_split"),
@@ -72,6 +90,8 @@ def compact_ess_diagnostics(diagnostics):
 
 
 def error_category(exc):
+    if isinstance(exc, InsufficientPositiveWeightsError):
+        return "positive_weights"
     if isinstance(exc, InsufficientESSError):
         return "ESS"
     message = str(exc)

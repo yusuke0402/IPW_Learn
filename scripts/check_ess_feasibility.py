@@ -222,9 +222,14 @@ class Checks(unittest.TestCase):
             )
             prefix = "ipw"
         self.assertEqual(row["point_error_type"], "ESS")
-        self.assertEqual(row["boot_failed_ESS"], 2)
+        self.assertEqual(row["boot_failed_ESS"], 0)
+        self.assertEqual(row["ci_error"], "point_estimate_failed")
         self.assertEqual(nonlinear[prefix + "_point_error_type"], "ESS")
-        self.assertEqual(nonlinear[prefix + "_boot_failed_ESS"], 2)
+        self.assertEqual(nonlinear[prefix + "_boot_failed_ESS"], 0)
+        for record in json.loads(nonlinear[prefix + "_boot_ess_diagnostics"]):
+            self.assertEqual(record["fit_context"], "bootstrap")
+            self.assertFalse(record["ess_threshold_applied"])
+            self.assertEqual(record["min_positive_weights"], 3)
         self.assertEqual(
             len(json.loads(nonlinear[prefix + "_boot_ess_diagnostics"])), 2
         )

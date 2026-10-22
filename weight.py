@@ -70,9 +70,10 @@ def compute_weights(method, target_x, source_x, means=None, covariances=None,
     raise ValueError(f"Unknown weight method: {method!r} (choose from {WEIGHT_METHODS})")
 
 
-def weighted_mean_difference(weight_target, target_y, weight_source, source_y, min_ess=DEFAULT_MIN_ESS):
+def weighted_mean_difference(weight_target, target_y, weight_source, source_y, min_ess=DEFAULT_MIN_ESS,
+                             *, bootstrap=False, min_positive_weights=1):
     """Hájek 型の重み付き平均差。"""
-    assess_ess(weight_source, min_ess)
+    assess_ess(weight_source, min_ess, bootstrap=bootstrap, min_positive_weights=min_positive_weights)
     if weight_diagnostics(weight_target)["positive_weights"] == 0:
         raise ValueError("Target weights must have positive sum.")
     target_y = np.asarray(target_y).ravel()
@@ -102,8 +103,10 @@ def ipw_estimate(target_x, target_y, source_x, source_y, method="propensity",
         wt, ws = compute_weights(method, target_x, source_x, min_ess=minimum,
                                  diagnostics=metadata, bootstrap=bootstrap,
                                  target_ids=target_ids, source_ids=source_ids, **kwargs)
-        diagnostics = assess_ess(ws, minimum, **metadata)
-        estimate = weighted_mean_difference(wt, target_y, ws, source_y, min_ess=minimum)
+        diagnostics = assess_ess(ws, minimum, bootstrap=bootstrap,
+            min_positive_weights=source_x.shape[1], **metadata)
+        estimate = weighted_mean_difference(wt, target_y, ws, source_y, min_ess=minimum,
+            bootstrap=bootstrap, min_positive_weights=source_x.shape[1])
         return dict(estimate=estimate, ess=diagnostics["full"]["ess"],
                     max_weight=float(np.max(ws)), source_weights=ws,
                     ess_diagnostics=diagnostics)
@@ -127,7 +130,7 @@ class ULSIF:
 
     SIGMA_ANCHOR = "all_off_diagonal_distances"
     CV_POLICY = "observation_groups_train_target_basis_v1"
-    SIGMA_FACTORS = (0.1, 0.15, 0.2, 0.3, 0.5, 0.7, 1.0, 1.4, 2.0, 3.0)
+    SIGMA_FACTORS = (0.3, 0.5, 0.7, 1.0, 1.4, 2.0, 3.0)
     LAMBDA_GRID = (1e-4, 1e-3, 1e-2, 3e-2, 1e-1, 3e-1, 1.0)
     CV_FOLDS = 5
     CV_SEED = 12345
@@ -137,6 +140,7 @@ class ULSIF:
         self.min_ess = validate_min_ess(min_ess)
 
     def fit(self, target_x, source_x, *, bootstrap=False, target_ids=None, source_ids=None):
+        self.bootstrap_ = bool(bootstrap)
         n_source = source_x.shape[0]
         sigma_med = self._median_pairwise_distance(np.vstack((target_x, source_x)))
 
@@ -160,7 +164,7 @@ class ULSIF:
         K = rbf_kernel(x, self.basis_, gamma=1.0 / (2 * self.sigma_**2))
         r = np.maximum(K @ self.coef_, 0.0)
         self.raw_weight_diagnostics_ = weight_diagnostics(r)
-        self.ratio_zero_fallback_ = self.min_ess == 0 and self.raw_weight_diagnostics_["positive_weights"] == 0
+        self.ratio_zero_fallback_ = self.min_ess == 0 and not getattr(self, "bootstrap_", False) and self.raw_weight_diagnostics_["positive_weights"] == 0
         if self.ratio_zero_fallback_:
             return np.ones(x.shape[0])
         return r
