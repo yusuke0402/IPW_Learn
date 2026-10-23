@@ -83,3 +83,27 @@ underflowによる０はそのままESS判定へ渡し、一様重みに置き�
 
 指定条件の実験を、このリポジトリ単独で実行・停止・再開・集計できます。
 [別マシン用の実行手順](experiments/pilot_20261022/README.md)を参照してください。
+
+### プログラムの構成
+
+現在試験（target）のアウトカム平均から、過去対照群（source）を現在試験の
+共変量分布へ重み付けしたアウトカム平均を引き、治療効果を推定するシミュレーションです。
+パイロットは2次元で、アウトカムに `gamma * x1^2` を加え、真の治療効果を1に固定します。
+
+| ファイル | 役割 |
+|---|---|
+| `main.py` / `data.py` / `configs/` | 通常の設定ファイルによる人工データ生成・実験 |
+| `scripts/nonlinear_gamma_ipw.py` | パイロットが使用する2次元データ生成と1試行の入口 |
+| `weight.py` | uLSIF・logistic・oracle重みと自己正規化した平均差 |
+| `logistic_weight.py` / `propensityscore.py` | 所属群ラベルを使うロジスティック回帰とCのCV選択 |
+| `oracle_weight.py` | 真のガウス分布から計算する密度比 |
+| `experiment_execution.py` / `experiment_diagnostics.py` | bootstrap、ESS、点推定・区間の失敗判定 |
+| `experiments/pilot_20261022/prepare.py` | 固定コミットの書き出しと固定依存環境の準備 |
+| `experiments/pilot_20261022/runner.py` | 実行計画、並列実行、checkpoint、停止・再開・照合 |
+| `experiments/pilot_20261022/pilot_weighted.py` | 固定科学コードを呼び出し、データハッシュと共通形式の結果を作成 |
+| `experiments/pilot_20261022/pilot_report.py` | 試行CSV、条件別集計、図の出力 |
+
+パイロットの設定は `experiments/pilot_20261022/design.json`、科学コードの版は
+`source_pins.json` が正本です。`main.py` の通常実行や `configs/config.yaml` の変更は
+パイロットの設定変更にはなりません。別リポジトリとの比較設計も記録されていますが、
+このリポジトリのランナーが実行するのはIPWの3種類の重みだけです。

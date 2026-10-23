@@ -1,0 +1,924 @@
+{
+  "expected_jobs": 14400,
+  "expected_normalized_rows": 14400,
+  "fingerprint": "8aa6faa8b76df5e9414f6a2b838ee92ac6bfaf1f04dbaa4d965c2581645491db",
+  "mode": "production",
+  "prepared": {
+    "python_requested": "3.12.14",
+    "report_runtime": "report",
+    "runtime_for_family": {
+      "ipw": "ipw"
+    },
+    "runtime_projects": {
+      "ipw": {
+        "files": {
+          ".python-version": {
+            "sha256": "8dfda54ba2f66ab3a8ebab460f4338bbeea1fb1e0f85ce06fe3530aa3c64679b"
+          },
+          "pyproject.toml": {
+            "sha256": "0c12524f9eabcab39181ec3a466a8b4b5fbbd17fec0e1af7fcd36f29d33246f3"
+          },
+          "uv.lock": {
+            "sha256": "049d27e27e7ffec5c1eb77c65d1756e897ff080b6f7ff2fb14ee82523487a1fe"
+          }
+        },
+        "path": "runtime"
+      },
+      "report": {
+        "files": {
+          ".python-version": {
+            "sha256": "8dfda54ba2f66ab3a8ebab460f4338bbeea1fb1e0f85ce06fe3530aa3c64679b"
+          },
+          "pyproject.toml": {
+            "sha256": "5ff59f23ec7a247be3699c3c2786ddf1546bcec1b89c4155038603b844fe330d"
+          },
+          "uv.lock": {
+            "sha256": "a819c22ae433465f053bf2333c99a37647e45d8fe46fd8880a5663ef812ebdd0"
+          }
+        },
+        "path": "reporting"
+      }
+    },
+    "runtimes": {
+      "ipw": {
+        "implementation": "CPython",
+        "packages": [
+          [
+            "cloudpickle",
+            "3.1.2"
+          ],
+          [
+            "joblib",
+            "1.6.0"
+          ],
+          [
+            "narwhals",
+            "2.26.0"
+          ],
+          [
+            "numpy",
+            "2.5.3"
+          ],
+          [
+            "pandas",
+            "3.0.6"
+          ],
+          [
+            "python-dateutil",
+            "2.9.0.post0"
+          ],
+          [
+            "pyyaml",
+            "6.0.3"
+          ],
+          [
+            "scikit-learn",
+            "1.9.1"
+          ],
+          [
+            "scipy",
+            "1.18.1"
+          ],
+          [
+            "six",
+            "1.17.0"
+          ],
+          [
+            "threadpoolctl",
+            "3.7.0"
+          ],
+          [
+            "tqdm",
+            "4.70.1"
+          ]
+        ],
+        "python": "runtime/.venv/bin/python",
+        "version": "3.12.14"
+      },
+      "report": {
+        "implementation": "CPython",
+        "packages": [
+          [
+            "contourpy",
+            "1.3.3"
+          ],
+          [
+            "cycler",
+            "0.12.1"
+          ],
+          [
+            "fonttools",
+            "4.63.0"
+          ],
+          [
+            "joblib",
+            "1.5.3"
+          ],
+          [
+            "kiwisolver",
+            "1.5.0"
+          ],
+          [
+            "matplotlib",
+            "3.11.0"
+          ],
+          [
+            "numpy",
+            "2.5.1"
+          ],
+          [
+            "packaging",
+            "26.2"
+          ],
+          [
+            "pandas",
+            "3.0.3"
+          ],
+          [
+            "pillow",
+            "12.3.0"
+          ],
+          [
+            "pyparsing",
+            "3.3.2"
+          ],
+          [
+            "python-dateutil",
+            "2.9.0.post0"
+          ],
+          [
+            "pyyaml",
+            "6.0.3"
+          ],
+          [
+            "scipy",
+            "1.18.0"
+          ],
+          [
+            "six",
+            "1.17.0"
+          ]
+        ],
+        "python": "reporting/.venv/bin/python",
+        "version": "3.12.14"
+      }
+    },
+    "schema_version": 1,
+    "source_pins": {
+      "ipw": {
+        "commit": "7f2c9bafe7aa46d638210e65db469ae07fb74e60",
+        "repository": "yusuke0402/IPW_Learn"
+      }
+    },
+    "sources": {
+      "ipw": {
+        "files": {
+          ".gitignore": {
+            "git_blob": "076cc2425df04a099090da2a3602cd585a1cadc7",
+            "sha256": "99291af606d2103b2b7f5eb149795ae8495c5334db3f092c725191dd259f1713"
+          },
+          ".python-version": {
+            "git_blob": "efb9dbd14ab2a5d9939f06f196189e5e0e6ad4ee",
+            "sha256": "2bcfbf5c53fe2a6b998f3d2991102af9c5c09a0b940f2e2a7ef7b7655855c832"
+          },
+          "10_dim_result/summary_data_scenario_1_N1000_20260313214412.yaml": {
+            "git_blob": "eecc248e48bbaa5b8fc9975614986dd9ad4338d2",
+            "sha256": "f67682205ddf8ba00fb2f717ac3313941f33c616933e2d46497949fe73f5c1ed"
+          },
+          "10_dim_result/summary_data_scenario_1_N100_20260313214410.yaml": {
+            "git_blob": "671274f67c5bfac62fff2f01ceb7a2b45557cd9c",
+            "sha256": "6e8a328686fca9ebfde41ce07dfb79560b1144f74b403b59824d49c676453f05"
+          },
+          "10_dim_result/summary_data_scenario_1_N200_20260313214411.yaml": {
+            "git_blob": "3bca04a9572241cdaac6f0627278d36ffac49277",
+            "sha256": "fe4f44a2a8065babdf2bdc5e10f058a22ab4400b908a23d930ca8d76e93158bc"
+          },
+          "10_dim_result/summary_data_scenario_1_N20_20260313214409.yaml": {
+            "git_blob": "27194bf3518765c520e55c09a83a1f986c0edc5c",
+            "sha256": "ec3950871e075c3352e5577d0b61000fd112844f1e1b7b964c9965722c3bd98b"
+          },
+          "10_dim_result/summary_data_scenario_1_N500_20260313214411.yaml": {
+            "git_blob": "63d0eb154fd4c30f21234bc2aec00b06d2bfaf3e",
+            "sha256": "1b56c563b9f57425ad2dbde299544519649c1dcbfcf99a6fb4cf94c8b006130f"
+          },
+          "10_dim_result/summary_data_scenario_1_N50_20260313214409.yaml": {
+            "git_blob": "2a29f3342bfb27f74d0db06295982b6fc7720b7f",
+            "sha256": "8314e74843b62d51202579e0ccf00a4ce1084cfbc99bf1fb379cd22c44c15f9d"
+          },
+          "10_dim_result/summary_data_scenario_2_N1000_20260313214416.yaml": {
+            "git_blob": "cad6d3c72240a2aeb0e4eabb6fc79c5da216ce39",
+            "sha256": "d4dcc0c9803f3f0ca97040f3c098e3f08a4350f0e5d93bbad456effd2ed88c04"
+          },
+          "10_dim_result/summary_data_scenario_2_N100_20260313214414.yaml": {
+            "git_blob": "77504bf8005fda3197b1500c113830b72d925681",
+            "sha256": "9260a91dcbe741e69f9a5d44fea2a8179ee13641c9162beda31b380e60bd26fb"
+          },
+          "10_dim_result/summary_data_scenario_2_N200_20260313214415.yaml": {
+            "git_blob": "7630f8ed9275c59c6ed894fbba5d8d360829da82",
+            "sha256": "8b9978ace55bd3a44301346442dc9d645069c0520188fd8c7833ddb106727286"
+          },
+          "10_dim_result/summary_data_scenario_2_N20_20260313214413.yaml": {
+            "git_blob": "fadcdae79c4761dbbac126adfe3867417f20a339",
+            "sha256": "b61f5c67e05c3382081b05ff771ad22f135facece0812006ed9a6adf8198bde3"
+          },
+          "10_dim_result/summary_data_scenario_2_N500_20260313214416.yaml": {
+            "git_blob": "3d9d240de6a9647e1b44e934b94bbdbe17054180",
+            "sha256": "52f35499bda9318fb261bd8753585e15c825320ca5f4b7fcd3dc2745d9333457"
+          },
+          "10_dim_result/summary_data_scenario_2_N50_20260313214413.yaml": {
+            "git_blob": "a8bdd08402bf035ace82b843f1240681bc9b49fc",
+            "sha256": "5eba6ae91cce7129d86c26bec4c8e81d844a04e2de0cfba1621734bae3810ede"
+          },
+          "10_dim_result/summary_data_scenario_3_N1000_20260313214420.yaml": {
+            "git_blob": "343a9a189eea4ece6551cc02e6c54c914637cbee",
+            "sha256": "5ad435e16c4c9728344d16bbce0cffdfc0761940b583faf757e95abc8c92c546"
+          },
+          "10_dim_result/summary_data_scenario_3_N100_20260313214418.yaml": {
+            "git_blob": "4b2e202af1e36724ce190f3aeb0d0982736af1f8",
+            "sha256": "3e8a77f55aa56a047a2ed4803a603782bb10b1d6547f495c3ee321f6cc2ad08d"
+          },
+          "10_dim_result/summary_data_scenario_3_N200_20260313214419.yaml": {
+            "git_blob": "e092dce6a7b86a1a84a9247ec762ff28891be733",
+            "sha256": "6a36c18805437f541f3aa8779b35b7abc46f389cca5d8d80338c334a6668416d"
+          },
+          "10_dim_result/summary_data_scenario_3_N20_20260313214417.yaml": {
+            "git_blob": "b54660ca179925dd3591e692dfbd6d1129ceed58",
+            "sha256": "085455d8236985733253c174f5922107f2b37a01cca41783513737b72fa35655"
+          },
+          "10_dim_result/summary_data_scenario_3_N500_20260313214419.yaml": {
+            "git_blob": "167cf255240aed5a48a8bf0556a4e35a5320a57b",
+            "sha256": "b447a14383ab2553e78a290a9e950b30432395f429392f41b517c735499d2bff"
+          },
+          "10_dim_result/summary_data_scenario_3_N50_20260313214418.yaml": {
+            "git_blob": "3943debe9a90b8cd0833310ab43e50f945f19389",
+            "sha256": "5345178445825aff2fa3c833138c83b18a98077d447137da00afed9c09bd1c74"
+          },
+          "10_dim_result/summary_data_scenario_4_N1000_20260313214424.yaml": {
+            "git_blob": "edc8c79b2c524194f43470f63995d4940e6b7d0d",
+            "sha256": "bfed7454062777bed05b592005c35e7e70f890e8c977e2650da3c8a06c8340ea"
+          },
+          "10_dim_result/summary_data_scenario_4_N100_20260313214422.yaml": {
+            "git_blob": "37d523f0f8b2b74381bd68c43e4fe342e408f096",
+            "sha256": "38439bfad6ae14f93aff32666d9c452e0d2237a21ff86faf221f5465376e0a7a"
+          },
+          "10_dim_result/summary_data_scenario_4_N200_20260313214423.yaml": {
+            "git_blob": "e9f7f32e7c63c24afeaded26d381280119bf3142",
+            "sha256": "0b67b55da3be1ebb96e60732116360b6078fc488041c21f1fb47258eb1c4f908"
+          },
+          "10_dim_result/summary_data_scenario_4_N20_20260313214421.yaml": {
+            "git_blob": "07418abb117a92cc88e0d6a16853a53108de27d3",
+            "sha256": "3673993d91563d8ffd56aed32ce592f910fd7558c09b69282df398a9d81ca4d8"
+          },
+          "10_dim_result/summary_data_scenario_4_N500_20260313214424.yaml": {
+            "git_blob": "3ef7d4336dafa9f0b70829a6f3d7bdab06094e47",
+            "sha256": "a9790154806b52eacaef5ddd09a515b6b9332d8f94f880404a7a4de7c15b4173"
+          },
+          "10_dim_result/summary_data_scenario_4_N50_20260313214422.yaml": {
+            "git_blob": "f61cce602cee1672e5d77c5e19b56ef5b0ea8830",
+            "sha256": "1b9447711bae523400882dafa44da895512d025524813aeee93cf26ec6d475c9"
+          },
+          "README.md": {
+            "git_blob": "a7695fc7f04a93077f84ab9b848732a7bb80cb99",
+            "sha256": "7ce6d9cbb6d07f9b43e6d20233fef0f4a0133ba760a5bd4649bfa7b043b26668"
+          },
+          "RIWvsIPW-results/summary_20260303215454.yaml": {
+            "git_blob": "06be1a888a7b1850dbb25d6857888adbeab83a81",
+            "sha256": "9ca7e10a60376c6c2362f57495bb8b45531a62bd2273f04bd599c0d6f50c5381"
+          },
+          "RIWvsIPW-results/summary_20260303215517.yaml": {
+            "git_blob": "4fc3a4ce7b2c9580f43e92598a29d2d914c0624c",
+            "sha256": "ec041dcfcdd1ddb6241bdd611def3aa317389dc55e94d5add74396f9fab03c12"
+          },
+          "RIWvsIPW-results/summary_20260303215534.yaml": {
+            "git_blob": "9373963937653ab0d4f3a1eb8f31b64ce216885a",
+            "sha256": "31cbdb15e91152f76894503f1c81e22af079dcf4e315d3bc7728d9c7ca9d408a"
+          },
+          "RIWvsIPW-results/summary_20260303220402.yaml": {
+            "git_blob": "9a04f40f6e8629e3b4bf03abe0d15131a849702a",
+            "sha256": "4b004f00ba90874c5a69cffc076297b0653c36ded559b19f6887c12e01dc9b1d"
+          },
+          "RIWvsIPW-results/summary_20260303220419.yaml": {
+            "git_blob": "fa7eafd1dd299bf1d7c962ad13521c6b65e56592",
+            "sha256": "74aa23362c331b3586dace861bf89209a28f6003251e83c33785552c3f39409b"
+          },
+          "RIWvsIPW-results/summary_20260303220434.yaml": {
+            "git_blob": "6b47f1b9b6f7bd07314de9cc6de83eb8463d0a84",
+            "sha256": "3d7805fb8e3843ee9e26f876f5c45e7843bf72d0592e24c82fbd4a75a1e8765f"
+          },
+          "RIWvsIPW-results/summary_20260303220507.yaml": {
+            "git_blob": "174aeb8716eff3065cdea899bea33c646556bb2e",
+            "sha256": "e1c1eb8cf100c804fa92c4f37fadbefbbd41c63181812356d6e8535bb17c0fb3"
+          },
+          "RIWvsIPW-results/summary_20260303220520.yaml": {
+            "git_blob": "29ad2c998a6fbb16bc869d7bcfdbd15291ef2d40",
+            "sha256": "0a3f112cc1864e11cc3ee29a807acef2f25af4eefa10d23409207d2a44b01b85"
+          },
+          "RIWvsIPW-results/summary_20260303220534.yaml": {
+            "git_blob": "f851e377ac12cd3972ddcc44417b41125044eb67",
+            "sha256": "f4141e437b7a2dca66998761c7579715ac8ec7c9837e9934e74b182ac51f42a3"
+          },
+          "RIWvsIPW-results/summary_20260303220548.yaml": {
+            "git_blob": "859fd4e5d910f774a8ecb46d662a82f17f94b32a",
+            "sha256": "1a96a74fe2054107cb69f8101b69d2c446f88ba9dcbb04b9503022a5fdc9f812"
+          },
+          "RIWvsIPW-results/summary_20260303220601.yaml": {
+            "git_blob": "88d0bd03d332575a4de91162849772ba7ee183eb",
+            "sha256": "ff498635d57a8b3474a663cde060b5c1bab18bf2a716f08d2b62719ba4b01450"
+          },
+          "RIWvsIPW-results/summary_20260303220630.yaml": {
+            "git_blob": "bfa1b9a73af9338036b8be0b9197478293dc53d5",
+            "sha256": "6fc78f67984cc412e21e9b106c9039d2f1c40e29e22791048c2bab5fd4048dda"
+          },
+          "RIWvsIPW-results/summary_20260303220657.yaml": {
+            "git_blob": "75df0f32e82a72e25c765547ccb1f242329960dd",
+            "sha256": "fd38f1c370e8f88aba8ebb47bea34aa46b9b9610a01c922907a4f5f748722824"
+          },
+          "RIWvsIPW-results/summary_20260303220709.yaml": {
+            "git_blob": "e6da8d68f50477bc9c7d45a5cc6aefdf461e49ce",
+            "sha256": "0127967c5583f3ea84fdd40fee4b92e9bf0612a6d60725fd5bfb2ca0fee2fcf5"
+          },
+          "RIWvsIPW-results/summary_20260303220722.yaml": {
+            "git_blob": "0915c71c6fd2c39a4c933567c278331f1c0a0bd0",
+            "sha256": "6069df0ab69d6b79bfadb7759b3ebcc17a9ffe58589540c86020739fa3c6ca7c"
+          },
+          "RIWvsIPW-results/summary_20260303220737.yaml": {
+            "git_blob": "7d8454dc490d3da1f01a3088dbf9b6b679d1e8cc",
+            "sha256": "00e9d542b11b9917553f62b8272d3aaba8d686e511397a09f13e2bafc549eeb9"
+          },
+          "RIWvsIPW-results/summary_20260303220752.yaml": {
+            "git_blob": "a664d8d17df5cc0becf32ad336a3cf4bf1ff7661",
+            "sha256": "6a5f0ee39254e937440d6fec428f2d5e8eed15c3d26182a089250475b1a180fa"
+          },
+          "RIWvsIPW-results/summary_20260303220803.yaml": {
+            "git_blob": "6a355604d91533f6350646dfa5a574786be6ab9a",
+            "sha256": "85642c2c2136e7c0039fe8beaaa51c436e01ba1196a6b58dcfaf29c739ea8876"
+          },
+          "automate_experiments.py": {
+            "git_blob": "26137e6dfb7bd01cf5196d5420d8b6390deeb2ad",
+            "sha256": "692f0deaaee9a95d521f30f6f2c6fd066fc60bdd46ca61e3b2737662a2f3b0d1"
+          },
+          "configs/10dim_covariances.csv": {
+            "git_blob": "89ccf08e65908b1b8dc1dd56076eb4e8dd295c83",
+            "sha256": "a35d0589973bfe9c8f2542be758e7596e4899bec6b3d9942d8a37fbcf09c4579"
+          },
+          "configs/10dim_means.csv": {
+            "git_blob": "ba455f21b2906c7c49f39373662c470640322519",
+            "sha256": "8348c7dbb1cf6baa5b8f4d758ce52303b011efe69c61edb1824612a3a84ee1b4"
+          },
+          "configs/2dim_covariances.csv": {
+            "git_blob": "f81388b64952605dd5cb543fb4a4f2a3628799db",
+            "sha256": "4283a0cde794cef5a567533d8a50091a035da85dccd1b2613e4f5a8bcbe27f27"
+          },
+          "configs/2dim_means.csv": {
+            "git_blob": "7b028b736fad26ae8275740a105e65958d289954",
+            "sha256": "2cf95bb8cf64091569ff324b995672faac64c519e444acf9efc351c27c2c936d"
+          },
+          "configs/coefficient.csv": {
+            "git_blob": "8b073bf0767bde13d092791a791756d8f022e920",
+            "sha256": "ee371b63ae4a4904b178a0d0874fdc15a0845df95b92589ea399eb8293876d7b"
+          },
+          "configs/config.yaml": {
+            "git_blob": "96ee6550dfedd200595b45389108079888538e22",
+            "sha256": "999b979a3e07c9fa174124bace4a7bbb1b01f42c20665aae17a4e8023717bbe1"
+          },
+          "data.py": {
+            "git_blob": "0efc316bc1c42e56b80ef61ad591b9423bf3df0c",
+            "sha256": "43926e66bf15c48d5ba873e810e3561bee8bfd84061bc5fc17b397b8104b2fe4"
+          },
+          "experiment_diagnostics.py": {
+            "git_blob": "78eb76786802fe4d6fe536d6240636dcc3d08099",
+            "sha256": "fe5e59a91ccfd449e264db96668b6b0e4f48c7030e3609696d6410f11b1af0ff"
+          },
+          "experiment_execution.py": {
+            "git_blob": "8cdd6a7f41c36d21c6577c33597b4ade7abaacb0",
+            "sha256": "591f3adce6153430e0ef3dade68dfe5b5deed74619266dbcbabda6dc7995c69c"
+          },
+          "experiment_io.py": {
+            "git_blob": "68f0df3376e00f0bd70bc1ea92b98e9edd5c7d9d",
+            "sha256": "72543d66e97e1d668bcea7347372d381d62224acdb71583cd2ee80f2d21676f4"
+          },
+          "logistic_weight.py": {
+            "git_blob": "695e829641b21c2abd4d70e743b7f100bc4030c4",
+            "sha256": "36585dbaa7265801c5a9336c30902c9ce6a71132747987a32ac3fa3590141b44"
+          },
+          "main.py": {
+            "git_blob": "3b7886298d5248441e75f5c414d7afe694079ebf",
+            "sha256": "377d941bf12fd0db3c313e98b0f618032df050044c0575c684a4758bcf80f2d3"
+          },
+          "no_difference_10dim_results/summary_data_scenario_1_N1000_20260410135214.yaml": {
+            "git_blob": "6ff97668c9cdef91dccd29b4099e1d53c968ee07",
+            "sha256": "2bd5e753b5fea1609957e84f37e6582852d5dad36ba9dbc43144786831c2cda0"
+          },
+          "no_difference_10dim_results/summary_data_scenario_1_N100_20260410135212.yaml": {
+            "git_blob": "b0850185b4b705f45f542da4274bf9768c455bde",
+            "sha256": "7a45b35bd414c89cbc6836d977f4488440a6e70aa3002720c0835e088062fe2c"
+          },
+          "no_difference_10dim_results/summary_data_scenario_1_N200_20260410135212.yaml": {
+            "git_blob": "ea913f82f5204bd5f9bd83816ea4d36b11ac521c",
+            "sha256": "9eb37b11581fa21d5d95c467cf467cf4d184402968e17978eb92f6e578adb879"
+          },
+          "no_difference_10dim_results/summary_data_scenario_1_N20_20260410135210.yaml": {
+            "git_blob": "f01b02f5ecb50abbd185d39231f8386dc6dfa5b6",
+            "sha256": "b69016ba5ded1fcad8835c2615c33d02cb7b873b4e8dc3788119ffe45794fc2b"
+          },
+          "no_difference_10dim_results/summary_data_scenario_1_N500_20260410135213.yaml": {
+            "git_blob": "c44d4fac4acb0829b4ec7c14e62659d3e0fa9a69",
+            "sha256": "1907bc8773cf44a149ae143996b34306741bb13e69e1141f2a4b2439c003e585"
+          },
+          "no_difference_10dim_results/summary_data_scenario_1_N50_20260410135211.yaml": {
+            "git_blob": "cb484863854ea531049c19d9bbd89be58c607cd9",
+            "sha256": "26e6670efba16bd42098ee8efd6fd227966d380b6f9fec678039ca45f2ac24bf"
+          },
+          "no_difference_10dim_results/summary_data_scenario_2_N1000_20260410135218.yaml": {
+            "git_blob": "6c932867ce1be189b601b572e66ba0466bf3c744",
+            "sha256": "f03435526a1e98843a784d65a1a4490a15e995a88ff142b282dc0fbc665a25b0"
+          },
+          "no_difference_10dim_results/summary_data_scenario_2_N100_20260410135216.yaml": {
+            "git_blob": "3d330051a3126ce87ddb8c1c7829156c8b698d72",
+            "sha256": "5094324aeecd7eced3276665d42f58c7e0a144166f70d3cad33464c19cee633e"
+          },
+          "no_difference_10dim_results/summary_data_scenario_2_N200_20260410135217.yaml": {
+            "git_blob": "2ffb4fe38895cc8a2bb05d6e07548c8d31b72103",
+            "sha256": "913f09d333d8f499a6440fe14747e35500127fa7a402b3ca196f21e34807ffdc"
+          },
+          "no_difference_10dim_results/summary_data_scenario_2_N20_20260410135214.yaml": {
+            "git_blob": "6550a4c203e3043d7891c8eca997a5cc754ca22f",
+            "sha256": "6a973f27f4acf68749d50a64fa8a573e575e0452ca841b1624566397f652a61d"
+          },
+          "no_difference_10dim_results/summary_data_scenario_2_N500_20260410135217.yaml": {
+            "git_blob": "025456634b66005a4c9a134ee532877bb4f53c74",
+            "sha256": "f84a5d7dd9e0edc9038f8bb890ce2b635cc2c9627ec1bd95dde6640a99ceda9c"
+          },
+          "no_difference_10dim_results/summary_data_scenario_2_N50_20260410135215.yaml": {
+            "git_blob": "48951520eacc80100d212821d727df2ddd4d28cf",
+            "sha256": "1f4e8e6e03c11a03ff4a669c81b685a7d1d311cfdd41932ee5b3a875a0894b2a"
+          },
+          "no_difference_10dim_results/summary_data_scenario_3_N1000_20260410135222.yaml": {
+            "git_blob": "b0c3f77796216edd0f41d1ef0ba1c5090e287aad",
+            "sha256": "1cb1888022e1472ecf17006ee0980f0be5a6f2f5d1a9b71a8e87d3e5e000b633"
+          },
+          "no_difference_10dim_results/summary_data_scenario_3_N100_20260410135220.yaml": {
+            "git_blob": "5ff60d2e2a9151071e7a0fad21d184f0e25ee881",
+            "sha256": "c9bb1f207c48dc7f8d98bfb84cb944d6d014f2e209cd023ec9952aa0d61d5775"
+          },
+          "no_difference_10dim_results/summary_data_scenario_3_N200_20260410135221.yaml": {
+            "git_blob": "df902480627e4649f8487b6761337e1527469131",
+            "sha256": "685291633b912288ff64c75ee572beca7015fde4f8a2e38f2f7cfb26eb12d4e9"
+          },
+          "no_difference_10dim_results/summary_data_scenario_3_N20_20260410135219.yaml": {
+            "git_blob": "48a4c4ef09e0bf720014c7ab93e37c3408317707",
+            "sha256": "0e049898eaf3104b1c6dc5e29c4563e69fc808103e0ee93f686469d717fcb1f4"
+          },
+          "no_difference_10dim_results/summary_data_scenario_3_N500_20260410135221.yaml": {
+            "git_blob": "440c1488c534f995ad57f5a4d80c6e15e8010fa2",
+            "sha256": "38096d220bdd8ec7b9e55885dccb1607321fb54609fec47dde0b13d45482d4be"
+          },
+          "no_difference_10dim_results/summary_data_scenario_3_N50_20260410135220.yaml": {
+            "git_blob": "e1b6d6afbe10fc4a6ee25bf895bd5fd12bcaa459",
+            "sha256": "b08a20223a46c852d39c92a08f9396b34b0b74e6f2bbae6807f58c027664b6b0"
+          },
+          "no_difference_10dim_results/summary_data_scenario_4_N1000_20260410135226.yaml": {
+            "git_blob": "4d6a2ad8af00d510f1d396f48c4f0ed5c2e15154",
+            "sha256": "637615d2fc126c1947202a15ff48e0fe71440efeb9f1ba24148ecb91a01767a7"
+          },
+          "no_difference_10dim_results/summary_data_scenario_4_N100_20260410135224.yaml": {
+            "git_blob": "4a6055bd7326fcc312a2522f6b863cd8eb55cf44",
+            "sha256": "dd92cbc8c73c0674380ef0a1c418ad1b3b8d5d17fafc09bb795061d9f2becac5"
+          },
+          "no_difference_10dim_results/summary_data_scenario_4_N200_20260410135225.yaml": {
+            "git_blob": "6c0a0847c0becc97e65c532d8c0b4439b246b952",
+            "sha256": "8954ec564b5b1916d90a107f30ab25b60ef68a5a236998d26951088c217168ac"
+          },
+          "no_difference_10dim_results/summary_data_scenario_4_N20_20260410135223.yaml": {
+            "git_blob": "4280372a34ef8c4e682eaa2aa8c1c54a22869158",
+            "sha256": "62cbf6e877bac58e5c5ae428db4c342ab9aa7f7d7a2b70a0ea4147ae248d28c4"
+          },
+          "no_difference_10dim_results/summary_data_scenario_4_N500_20260410135225.yaml": {
+            "git_blob": "600de3ba278493d50fe896680b69257827b74728",
+            "sha256": "f0a44977e6fbb44033c5417ce1aad2505ed4d9f256728fe829e36f35a3412f3f"
+          },
+          "no_difference_10dim_results/summary_data_scenario_4_N50_20260410135223.yaml": {
+            "git_blob": "d87ea6577a16f44c6c764e3f833aeb15e4223790",
+            "sha256": "40321516eea6e9161006056b289763e10e04995dfb4267256c6a83ac07fe529b"
+          },
+          "no_difference_10dim_results/summary_data_scenario_5_N1000_20260410135230.yaml": {
+            "git_blob": "dc58f7e8bbd4659f9e6d5a15fb613ae2aee0fe01",
+            "sha256": "2549fa968eaa912f3250c161d3d3b3c5b392bff95d13ab50b0b77ba596b71fff"
+          },
+          "no_difference_10dim_results/summary_data_scenario_5_N100_20260410135228.yaml": {
+            "git_blob": "9ce8020cc9af9b04b5689462847480aa0dd0fd35",
+            "sha256": "10f8431f95a7329cfd5857d73527b78201425113a0ee803c3eb388e625580bd4"
+          },
+          "no_difference_10dim_results/summary_data_scenario_5_N200_20260410135229.yaml": {
+            "git_blob": "6d94145be401e197480f398e30d4fecd8f1ef3d0",
+            "sha256": "bb359cc9f08a483dfffe14c91576c20cc08fee9eb6b52ebdb106412e57c7cfb2"
+          },
+          "no_difference_10dim_results/summary_data_scenario_5_N20_20260410135227.yaml": {
+            "git_blob": "77b409a61662268f29f72277b7f4d10d926a8c29",
+            "sha256": "dc1545a4a4184f92758f629fc5f565b5ee0d3499f57e4b6e4cbed1c20d9e9cbb"
+          },
+          "no_difference_10dim_results/summary_data_scenario_5_N500_20260410135229.yaml": {
+            "git_blob": "9ab9c072c8d5c302cf770cd87c9b95920c561867",
+            "sha256": "3f9958858f4e7ff8716a1390e99df2eeedc1f78ae09d8156fb26f67caed22137"
+          },
+          "no_difference_10dim_results/summary_data_scenario_5_N50_20260410135227.yaml": {
+            "git_blob": "098ab529342e647677135faab7f42816ccc2569a",
+            "sha256": "1fb45b04f1bebc539ccfcddfdf30baa5b6498596f528200558edfcbbfe8b437e"
+          },
+          "oracle_weight.py": {
+            "git_blob": "a9fc19f5b675bbe6e6ff47de2bb72c4263db5eea",
+            "sha256": "05daa5285c178aded2da009178857faad7fa586fea2e440d2f108c5b50bdbbe2"
+          },
+          "propensityscore.py": {
+            "git_blob": "5079ce7d4aeb4a5a0da8d9fd086a69f275ce765a",
+            "sha256": "1e5271292d04b829e9e46dd51c0765a7c160729d5826db34d4d65875bab0fff4"
+          },
+          "pyproject.toml": {
+            "git_blob": "05477bd44d0502ac4a385a408d339063b85bbcad",
+            "sha256": "8ab90861b5fdb5987cc249b84db356870db098762a67f12c659c2b6631c9534b"
+          },
+          "result.py": {
+            "git_blob": "d56dc3bf0b23b393eaf5ddc8cef8eadadb3c4e0f",
+            "sha256": "71820906ebbde6283296d75861b5ac0d644b15fef83aefb38317cd1c1f0d30b8"
+          },
+          "results/summary_20260209175014.yaml": {
+            "git_blob": "adc998d4507ee8b66d570f458f47b305f96572c0",
+            "sha256": "0f7f4de12d1355694aaec9e8dbd505028c536c8fe8539a1277dcd1e169a46218"
+          },
+          "results/summary_20260209175111.yaml": {
+            "git_blob": "03339694add008de48bcc311b3ad7f1c64737f9e",
+            "sha256": "3fbcbb4c2aa250da3043989e087d2efa908eb288b5f9bfbcd9c2d1ccd262e4b8"
+          },
+          "results/summary_20260209175143.yaml": {
+            "git_blob": "3f212f92873477872780e0f8339f2e461e93693b",
+            "sha256": "ffd380426120c783c80ccb3342a411f0a4b531c8c3027c2594136918e20fc690"
+          },
+          "results/summary_20260209181106.yaml": {
+            "git_blob": "1c7c8e2c673f3ae174cdf057e81b841638a69b64",
+            "sha256": "89217ac4636296e41b57fc32430b3739c4738f3a33aec607f84188aca4bd81ba"
+          },
+          "results/summary_20260209181128.yaml": {
+            "git_blob": "968416791c2fb6aba4e124817482111dccaeb985",
+            "sha256": "7e1f80eee37441892dc924daf6b49f75018d2d0e30527240d8281bf1d3dd0457"
+          },
+          "results/summary_20260209181202.yaml": {
+            "git_blob": "4bec9b01c9de7aa481a4d1421a7a6e6db3cf734d",
+            "sha256": "be9c27acc111056dd518aacee47dff0aff71db283a07dba5305bc96b06cbfd41"
+          },
+          "results/summary_20260209181226.yaml": {
+            "git_blob": "3650709fabc6fd4146369a063041041beb395bd7",
+            "sha256": "6df62ff00ce102f03cf1538c8f4a9d93886b6774a4dcfb84c9f3c1f5dddb0b2d"
+          },
+          "results/summary_20260210200054.yaml": {
+            "git_blob": "82abb5ecb284ce641aa984ac9fbcc7b7fe9ec5a4",
+            "sha256": "6d6baf3c767ccab02c65ebb51c07cd73c04937223596496eccbce71cb27df442"
+          },
+          "results/summary_20260212191535.yaml": {
+            "git_blob": "edc011a51779a7408468e0a0e3cc1e1297ec2641",
+            "sha256": "18f720f88021d83fc0cc501fafee67265cd367015516acbbab6f291b4dfc16d6"
+          },
+          "results/summary_20260212191616.yaml": {
+            "git_blob": "24a5fa3f8f705a246f673e8cd35ad59565a7f684",
+            "sha256": "3231c2d6f734ed6eed9b4c19494b49ef5268e31dc7458f2c1576fc3305433dae"
+          },
+          "results/summary_20260212191635.yaml": {
+            "git_blob": "055ee91598b110403551da8e4322c61eb4789148",
+            "sha256": "8b44e9484432e280811a7babebe5765c9146591a91f8e44abe859fceaaa7d238"
+          },
+          "results_20/summary_20260212192020.yaml": {
+            "git_blob": "bf6cade5cbad69ba87c156ed8c54efa25d9b9e4d",
+            "sha256": "1379051c95e6cfa51d7e79f428fcb70b8c00577a36b8daffe873ab5881a10f82"
+          },
+          "results_20/summary_20260212193557.yaml": {
+            "git_blob": "03846b726e4d08b2324e03f6309d949fcccabcbd",
+            "sha256": "3488b6146bfb7de7058d76680ef0ed6af132283b52130abd7a6f8393fe0a3dc8"
+          },
+          "results_20/summary_20260212193622.yaml": {
+            "git_blob": "90764340d77a2ad9e6a2aa3ed6180d7c36325570",
+            "sha256": "f62f8a07633a2e76b61c6ed4990621cfb9842f2814851ccbec013ff49e774897"
+          },
+          "results_20/summary_20260212193646.yaml": {
+            "git_blob": "0ee45b4776380e0a3de57486b1d35dc26ce05935",
+            "sha256": "fe716bb055c531ccc534e6e713f91d1f4e561b2ee78d655e1a3b5ec1e62eb3db"
+          },
+          "results_20/summary_20260212193738.yaml": {
+            "git_blob": "3642336ec632e8dbef51e3fc1e9960e4fc45fd61",
+            "sha256": "a40b496473d89a4e82cf6d7b38cab8ab4b5415d3433c05bf87516f962260da12"
+          },
+          "results_20/summary_20260212194040.yaml": {
+            "git_blob": "c2a9e77d97e5c5d221a0d017d4e2208bfe6e74b3",
+            "sha256": "1c83267144d7e9318e10f5ef65644903765b4b4e8b272b77e691ac8ccc0b67a7"
+          },
+          "results_20/summary_20260212194144.yaml": {
+            "git_blob": "e019f76aaa957087b7777aa211b5d6b436e88466",
+            "sha256": "0098d6e96ccf9693cf6032b9e6f02edfe587efb13e755d73166711cc803ca300"
+          },
+          "results_20/summary_20260303215107.yaml": {
+            "git_blob": "29ce60dc964f6d1481ffd93052db5f3b757772f2",
+            "sha256": "5d6de9d5424720e6fbb63e91100f5bffbe7b7d0f21b5c8bb22b9b90cc395f0af"
+          },
+          "scripts/check_ess_feasibility.py": {
+            "git_blob": "01fb4553c151311e75db2b0d4d06b4e662b94887",
+            "sha256": "c539374f33cdf8255f5ca11a2c1a2e1c21c023a8bb6149fe945dbfb763ac7a8f"
+          },
+          "scripts/check_ipw_bootstrap_alignment.py": {
+            "git_blob": "8b03c36dfa6b946f0127fc90f9ea276ab7b7b2d6",
+            "sha256": "918100d4c214a7b26677d9eba86836bbd966338804fc45f356b49fe5a47d6016"
+          },
+          "scripts/check_logistic_alignment.py": {
+            "git_blob": "2b7c361326bebeef68d75e242cb191971bd1431c",
+            "sha256": "849fd59226cd28f566f781d00597da15d968eb0a8d8fac3bae177ee12a561000"
+          },
+          "scripts/check_oracle_weights.py": {
+            "git_blob": "ebd8aea6bb18b2b6aaddbaba9df67dab38be9e45",
+            "sha256": "46a43ee5c220b9208e3ddf131c8ca18be5d3eff779f33228fbc478f75a267233"
+          },
+          "scripts/check_ulsif_grouped_cv.py": {
+            "git_blob": "85ba306bc1c8b970101a02850d8b0b9f4f62fa40",
+            "sha256": "d5e4228f20c0e6b063b4eccf29ba7d40f986110e408e9ad3a1d9a3f5834f2434"
+          },
+          "scripts/nonlinear_gamma_ipw.py": {
+            "git_blob": "230667ceb14be82f8605b0b3657a079c547e3e67",
+            "sha256": "8cfcc57857021dfff1682a115c1f311f420ad6580484f0849485d748f85b9f0c"
+          },
+          "t50_comparison/run_ipw_t50.py": {
+            "git_blob": "2d77c9196291c8c302fdd55e9fbd0556b39d3613",
+            "sha256": "718e9071c1d86ca17d7914f5b92ece9d6856a7564cb8a3db8fd9c54290696679"
+          },
+          "uv.lock": {
+            "git_blob": "7ec96f8c994afa29aa4bccffe892e006b1e5091e",
+            "sha256": "5ab6b8a4b19761ab58c531bef56f8c82bf545172433108d28035089603dffa5c"
+          },
+          "weight.py": {
+            "git_blob": "539d15f432ce1f5875e0181c6f362ec5aa5b2ac8",
+            "sha256": "c38c5fc56bbf6fcab5a2ed690a8325646291fd2791046eb9fe9433930af28dfb"
+          }
+        },
+        "path": "sources/ipw"
+      }
+    },
+    "status": "ready"
+  },
+  "repository_family": "ipw",
+  "requested_design": {
+    "aipw": "self_normalized",
+    "bayesian_configuration": "all priors and CPP MCMC defaults from pinned sources",
+    "bayesian_interval": "posterior95",
+    "bootstrap_replicates": 200,
+    "conditional_a0": [
+      0.1,
+      0.25,
+      0.5,
+      0.75,
+      1.0
+    ],
+    "data_hash": "sha256(concatenated target_X,target_y,source_X,source_y as little-endian float64 C-order)",
+    "frequentist_interval": "percentile95_bootstrap200",
+    "gammas": [
+      0.0,
+      0.5
+    ],
+    "ipw": "self_normalized",
+    "iwl_l1": 0.0,
+    "iwl_lambda_selection": "fixed",
+    "iwl_target_split_ratio": 1.0,
+    "max_bootstrap_failure_rate": 0.05,
+    "min_ess": 3.0,
+    "other_scenarios": [
+      4
+    ],
+    "repository_family": "ipw",
+    "schema_version": 1,
+    "seeds": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      63,
+      64,
+      65,
+      66,
+      67,
+      68,
+      69,
+      70,
+      71,
+      72,
+      73,
+      74,
+      75,
+      76,
+      77,
+      78,
+      79,
+      80,
+      81,
+      82,
+      83,
+      84,
+      85,
+      86,
+      87,
+      88,
+      89,
+      90,
+      91,
+      92,
+      93,
+      94,
+      95,
+      96,
+      97,
+      98,
+      99,
+      100,
+      101,
+      102,
+      103,
+      104,
+      105,
+      106,
+      107,
+      108,
+      109,
+      110,
+      111,
+      112,
+      113,
+      114,
+      115,
+      116,
+      117,
+      118,
+      119,
+      120,
+      121,
+      122,
+      123,
+      124,
+      125,
+      126,
+      127,
+      128,
+      129,
+      130,
+      131,
+      132,
+      133,
+      134,
+      135,
+      136,
+      137,
+      138,
+      139,
+      140,
+      141,
+      142,
+      143,
+      144,
+      145,
+      146,
+      147,
+      148,
+      149,
+      150,
+      151,
+      152,
+      153,
+      154,
+      155,
+      156,
+      157,
+      158,
+      159,
+      160,
+      161,
+      162,
+      163,
+      164,
+      165,
+      166,
+      167,
+      168,
+      169,
+      170,
+      171,
+      172,
+      173,
+      174,
+      175,
+      176,
+      177,
+      178,
+      179,
+      180,
+      181,
+      182,
+      183,
+      184,
+      185,
+      186,
+      187,
+      188,
+      189,
+      190,
+      191,
+      192,
+      193,
+      194,
+      195,
+      196,
+      197,
+      198,
+      199
+    ],
+    "source_ns": [
+      20,
+      100,
+      500
+    ],
+    "target_n": 50,
+    "trials_per_condition": 200,
+    "weighted_scenarios": [
+      1,
+      2,
+      3,
+      4
+    ]
+  },
+  "schema_version": 1,
+  "scripts": {
+    "design.json": "81d559a42d1253551e8ec813714d61107bb79f066e7f5284eac6231f21f5c47a",
+    "pilot_bayes.py": "d186414e6a0635ab69c4f9d92696aecced377a733b78f8610954c63040498cc9",
+    "pilot_report.py": "bfe066673f599d1dfa3f4ab258df5bb3be82550aac7ea572b23f9e6d441866ca",
+    "pilot_weighted.py": "a476a8cd3c5dac7ed9d6430ffa904c043f45e15e18f031b922951cbec58fae89",
+    "prepare.py": "c78abb1460efd3e4dd5d8b39730554808edcec84f3616bb3f0f269a474def375",
+    "reporting/.python-version": "8dfda54ba2f66ab3a8ebab460f4338bbeea1fb1e0f85ce06fe3530aa3c64679b",
+    "reporting/pyproject.toml": "5ff59f23ec7a247be3699c3c2786ddf1546bcec1b89c4155038603b844fe330d",
+    "reporting/uv.lock": "a819c22ae433465f053bf2333c99a37647e45d8fe46fd8880a5663ef812ebdd0",
+    "runner.py": "80b95f6500b51d8317a1d78922b60710e93f015f001d9899e8d9c47f8880a5d5",
+    "runtime/.python-version": "8dfda54ba2f66ab3a8ebab460f4338bbeea1fb1e0f85ce06fe3530aa3c64679b",
+    "runtime/pyproject.toml": "0c12524f9eabcab39181ec3a466a8b4b5fbbd17fec0e1af7fcd36f29d33246f3",
+    "runtime/uv.lock": "049d27e27e7ffec5c1eb77c65d1756e897ff080b6f7ff2fb14ee82523487a1fe",
+    "source_pins.json": "d4f9afcc8412e39480f100b4744c062856f3ffeb317b667ffe0803da611d6886"
+  }
+}

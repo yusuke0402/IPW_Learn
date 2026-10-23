@@ -4,7 +4,7 @@
 
 取得する科学コードは自分のリポジトリの [source_pins.json](source_pins.json) に記録したコミットです。他の実験リポジトリのcloneや、NPPのコード・JAX・NumPyro環境は必要ありません。
 
-既存の実験結果は同梱しません。空の出力先では各条件をseed 0から実行します。
+[2026年10月23日完了の共有結果](../../results/v2/dev/pilot_20261022_ipw_t50_B200/README.md)を保存しています。共有結果は実行先へ自動取り込みされず、空の出力先では各条件をseed 0から実行します。
 
 ## 実験条件
 
@@ -44,7 +44,7 @@ Conditional PPは1ジョブでa₀別に5行を返します。6リポジトリ�
 
 ## 必要なもの
 
-- LinuxまたはmacOSの端末環境
+- LinuxまたはmacOSの端末環境（WindowsではUbuntu WSLを利用。下記参照）
 - Git、[uv](https://docs.astral.sh/uv/getting-started/installation/)
 - 実行するリポジトリを取得できる通信・認証設定
 - Python 3.12（以下のコマンドではuvが選択します）
@@ -53,7 +53,7 @@ Conditional PPは1ジョブでa₀別に5行を返します。6リポジトリ�
 
 ## 初回セットアップ
 
-実行したいリポジトリの `codex/pilot-20261022-portable` ブランチを取得し、`experiments/pilot_20261022/` に移動します。以下はIW-Learnの場合です。他のリポジトリではリポジトリ名を置き換えます。
+実行したいリポジトリの `codex/pilot-20261022-portable` ブランチを取得し、`experiments/pilot_20261022/` に移動します。以下はIPW_Learnの場合です。他のリポジトリではリポジトリ名を置き換えます。
 
 ```bash
 git clone --branch codex/pilot-20261022-portable https://github.com/yusuke0402/IPW_Learn.git
@@ -62,7 +62,7 @@ git clone --branch codex/pilot-20261022-portable https://github.com/yusuke0402/I
 `PILOT_WORK` は科学コード・環境・結果を保存する作業用ディレクトリです。省略時はこのディレクトリの `work/` を使用します。リポジトリごとに別の作業ディレクトリを使用してください。
 
 ```bash
-cd /path/to/IW-Learn/experiments/pilot_20261022
+cd /path/to/IPW_Learn/experiments/pilot_20261022
 PILOT_WORK="$PWD/work"
 
 uv run --no-project --python 3.12 prepare.py --workdir "$PILOT_WORK"
@@ -159,3 +159,49 @@ checkpointは一時ファイルから置換して確定します。内容のchec
 ```bash
 uv run --no-project --python 3.12 -m unittest discover -s . -p test_runner.py -v
 ```
+
+## このWindows PCでの実行（Ubuntu WSL）
+
+ランナーは `fcntl` によるプロセス間ロックを使うため、WindowsのPythonから直接起動せず、
+Ubuntu WSLで実行します。作業場所は
+`C:\Users\yusuke\Documents\IPW_Learn\experiments\pilot_20261022\work` です。
+ルートの `.venv` やWindows側のPythonは、このパイロットの実行環境ではありません。
+
+このPC用の準備では `work/tools/` にLinux版uvとPythonを配置しています。
+環境を再確認する場合は、Ubuntu WSL内で次を実行します。
+
+```bash
+cd /mnt/c/Users/yusuke/Documents/IPW_Learn/experiments/pilot_20261022
+export PATH="$PWD/work/tools/uv-x86_64-unknown-linux-gnu:$PATH"
+export UV_CACHE_DIR="$PWD/work/cache/uv"
+export UV_PYTHON_INSTALL_DIR="$PWD/work/tools/python"
+python3 prepare.py --workdir "$PWD/work"
+./work/runtime/.venv/bin/python runner.py prepare
+./work/runtime/.venv/bin/python runner.py plan
+```
+
+セットアップ後はuvを介さず固定環境のPythonで起動できます。
+以下は **WindowsのPowerShell** からのコマンドです。
+
+```powershell
+$pilotDir = '/mnt/c/Users/yusuke/Documents/IPW_Learn/experiments/pilot_20261022'
+
+# 状態確認（計算は開始しない）
+wsl -d Ubuntu --cd $pilotDir --exec ./work/runtime/.venv/bin/python runner.py status
+
+# 3重み各1試行の起動確認。bootstrapは各200回。
+wsl -d Ubuntu --cd $pilotDir --exec ./work/runtime/.venv/bin/python runner.py preflight --workers 3
+
+# 全72条件・14,400試行を開始（4並列）
+wsl -d Ubuntu --cd $pilotDir --exec ./work/runtime/.venv/bin/python runner.py run --workers 4 --batch-size 10
+
+# 停止要求（別のPowerShellから実行可能）
+wsl -d Ubuntu --cd $pilotDir --exec ./work/runtime/.venv/bin/python runner.py stop
+
+# 停止解除・再開
+wsl -d Ubuntu --cd $pilotDir --exec ./work/runtime/.venv/bin/python runner.py run --workers 4 --batch-size 10 --clear-stop
+```
+
+本実験は計2,880,000回のbootstrapを含みます。起動確認の結果は
+`work/verification/preflight/`、本実験の結果は `work/results/` に分かれます。
+実行中はWSLと起動したターミナルを維持してください。

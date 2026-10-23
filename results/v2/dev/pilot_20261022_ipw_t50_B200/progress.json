@@ -1,0 +1,20 @@
+{
+  "available_cpu_count": 12,
+  "batch_size": 10,
+  "elapsed_seconds": 10174.11306016508,
+  "errors": [],
+  "finished_at_utc": "2026-10-23T05:41:09.023583+00:00",
+  "jobs_already_complete": 12131,
+  "jobs_complete": 14400,
+  "jobs_new": 2269,
+  "jobs_pending": 0,
+  "jobs_saved": 14395,
+  "jobs_total": 14400,
+  "mode": "production",
+  "repository_family": "ipw",
+  "session": "20261023T025133Z_8bc709b5",
+  "started_at_utc": "2026-10-23T02:51:33.858717+00:00",
+  "status": "complete",
+  "updated_at_utc": "2026-10-23T05:41:09.023625+00:00",
+  "workers": 12
+}

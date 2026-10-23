@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "updated_at_utc": "2026-10-23T05:42:31.756569+00:00",
+  "run_mode": "production",
+  "manifest": "manifest.json",
+  "fingerprint": "8aa6faa8b76df5e9414f6a2b838ee92ac6bfaf1f04dbaa4d965c2581645491db",
+  "expected_jobs": 14400,
+  "completed_jobs": 14400,
+  "remaining_jobs": 0,
+  "ignored_noncompleted_checkpoints": [],
+  "normalized_trial_rows": 14400,
+  "condition_rows": 72,
+  "valid_estimates": 12652,
+  "valid_intervals": 12612,
+  "true_value": 1.0,
+  "missing_value": "NA",
+  "coverage_rule": "Among finite ordered intervals with a usable point estimate and no recorded CI error; denominator is explicit.",
+  "paired_rule": "Scenario 4, matching condition and seed, matching observed data SHA256, both point estimates usable.",
+  "interpretation": "Partial results until every declared job is completed; Monte Carlo precision depends on usable counts.",
+  "files": [
+    "summary/normalized_trials.csv",
+    "summary/per_condition_summary.csv",
+    "summary/summary.csv",
+    "summary/paired_vs_gcomp.csv"
+  ],
+  "figures": [
+    "figures/pilot_scenario_01_gamma_0_T050_metrics.png",
+    "figures/pilot_scenario_01_gamma_0p5_T050_metrics.png",
+    "figures/pilot_scenario_02_gamma_0_T050_metrics.png",
+    "figures/pilot_scenario_02_gamma_0p5_T050_metrics.png",
+    "figures/pilot_scenario_03_gamma_0_T050_metrics.png",
+    "figures/pilot_scenario_03_gamma_0p5_T050_metrics.png",
+    "figures/pilot_scenario_04_gamma_0_T050_metrics.png",
+    "figures/pilot_scenario_04_gamma_0p5_T050_metrics.png"
+  ]
+}

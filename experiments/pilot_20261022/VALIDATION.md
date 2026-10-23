@@ -12,3 +12,29 @@
 - 実際のG-computationの環境・結果ディレクトリを別パスへ移動し、照合と新規計算0件の再開を確認しました。
 
 本実験の200seed一式は、ここでの動作確認では起動していません。生成した結果・仮想環境・ログはGitに含めていません。
+
+## Windows PC / Ubuntu WSLでの準備（2026年10月22日）
+
+- `codex/pilot-20261022-portable`（`52855ed`）へ切り替え、`git pull --ff-only` で最新であることを確認しました。SSH認証が利用できなかったため、Gitコマンド内だけHTTPSへ切り替えました。
+- 作業場所は `C:\Users\yusuke\Documents\IPW_Learn\experiments\pilot_20261022\work`。Ubuntu WSLから同じ場所を使用しています。
+- 科学コードは `7f2c9bafe7aa46d638210e65db469ae07fb74e60` の120ファイルを照合・書き出ししました。科学コード・実験設計・依存ロックの変更はありません。
+- Linux版uv 0.13.5とPython 3.12.14を `work/tools/` に配置しました。計算用・図作成用の固定環境を準備し、両方で `uv pip check` が成功しました。
+- 計算用環境はNumPy 2.5.3、pandas 3.0.6、scikit-learn 1.9.1、SciPy 1.18.1です。完全な依存版は `work/prepared.json` に保存しています。
+- ランナーの14テストがすべて成功しました（テスト実行自体はWSLのシステムPython 3.14.4、推定実行は固定環境のPython 3.12.14）。
+- `runner.py prepare` と `plan` で、本実験の72条件・14,400ジョブのmanifestと計画CSVを生成しました。
+- `preflight --workers 3 --batch-size 1` が3ジョブ・3行を完了しました。各200回、計600回のbootstrapを実行し、予期しない例外は0件でした。計算段階の経過時間は約35秒です。
+- 起動確認はシナリオ4、Source 20人、Target 50人、gamma=0、seed=0です。3重みの実データハッシュはすべて一致しました。
+- uLSIFとlogisticは点推定・区間を保存しました。oracleはESS=2.934569（下限3未満）のため、仕様どおり点推定・区間を欠測として保存しました。bootstrap自体の失敗は3手法とも0/200回でした。
+- CSV集計と `verification/preflight/figures/pilot_scenario_04_gamma_0_T050_metrics.png` の生成を確認しました。各手法1試行なので、これを推定精度の比較には使用しません。
+- 同じpreflightを再実行し、新規計算0件、既存checkpoint3ファイルのSHA256不変を確認しました。
+- PowerShellからWSLを介する `runner.py status` の実行も確認しました。本実験は0/14,400完了・停止要求なしの実行待ちで、開始していません。
+- 作業開始前から存在した `results/result_20260105024832.csv` と `results/summary_20260105024832.yaml` は、SHA256不変を確認しました。
+
+実行・停止・再開コマンドは [READMEのWindows WSL手順](README.md#このwindows-pcでの実行ubuntu-wsl) に記載しています。
+
+## 本実験完了（2026年10月23日）
+
+4並列で開始し、12,131試行の保存後に正常停止して12並列へ変更しました。
+全14,400試行・72条件を完了し、10月23日14:42頃（日本時間）にCSV集計と図8枚の作成を完了しました。
+予期しない実行エラーは0件。有効点推定は12,652、有効区間は12,612です。
+共有用の結果は [結果スナップショット](../../results/v2/dev/pilot_20261022_ipw_t50_B200/README.md) に保存しています。
